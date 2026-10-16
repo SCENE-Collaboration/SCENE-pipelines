@@ -1,39 +1,39 @@
-# SCENE Base-schemas
+# SCENE pipelines
 
 Shared [DataJoint](https://datajoint.com/) table definitions for SCENE pipelines.
 Keeping them in one package keeps provenance and session structure aligned across labs.
 
 Current package schemas (placeholders; definitions may change):
 
-- `base_schemas.schemas.scene.lab` — `Lab`
-- `base_schemas.schemas.scene.subject` — `SubjectKind`, `Subject`
-- `base_schemas.schemas.scene.project` — `Project`
-- `base_schemas.schemas.scene.session` — `Experimenter`, `Session`
-- `base_schemas.schemas.provenance.deployment` — `Deployment`
-- `base_schemas.schemas.provenance.row_meta` — `LabRowMeta`, `ProjectRowMeta`,
+- `scene_pipelines.schemas.scene.lab` — `Lab`
+- `scene_pipelines.schemas.scene.subject` — `SubjectKind`, `Subject`
+- `scene_pipelines.schemas.scene.project` — `Project`
+- `scene_pipelines.schemas.scene.session` — `Experimenter`, `Session`
+- `scene_pipelines.schemas.provenance.deployment` — `Deployment`
+- `scene_pipelines.schemas.provenance.row_meta` — `LabRowMeta`, `ProjectRowMeta`,
   `SubjectRowMeta`, `SessionRowMeta` (one stamp per tracked row: last and
   origin deployment, writer version, content hash)
 
 Also included:
 
-- `base_schemas.scripts.sync` — copy table rows between servers
-- `base_schemas.ingestion` — supported write path (`register_session`, …);
-  the helper packages mirror `base_schemas.schemas`:
-  - `base_schemas.ingestion.scene` — `register_subject`, `register_session`;
-  - `base_schemas.ingestion.scene.admin` — catalog ensures (`ensure_lab`, `ensure_project`; admin DB role);
-  - `base_schemas.ingestion.mouse` — `ensure_strain`, `register_mouse`;
-  - `base_schemas.ingestion.provenance` — row stamping and `DuplicatePolicy`;
+- `scene_pipelines.scripts.sync` — copy table rows between servers
+- `scene_pipelines.ingestion` — supported write path (`register_session`, …);
+  the helper packages mirror `scene_pipelines.schemas`:
+  - `scene_pipelines.ingestion.scene` — `register_subject`, `register_session`;
+  - `scene_pipelines.ingestion.scene.admin` — catalog ensures (`ensure_lab`, `ensure_project`; admin DB role);
+  - `scene_pipelines.ingestion.mouse` — `ensure_strain`, `register_mouse`;
+  - `scene_pipelines.ingestion.provenance` — row stamping and `DuplicatePolicy`;
 
 ## Inserting rows
 
-Write through the helpers in ``base_schemas.ingestion`` rather than calling
+Write through the helpers in ``scene_pipelines.ingestion`` rather than calling
 ``insert1`` directly. Every helper writes the row and a row-meta stamp
 (``LabRowMeta``, ``SessionRowMeta``, …) that records which deployment last
 wrote it (and which first did, ``origin_deployment_id``), the writer version,
 and a ``content_hash`` of the row's content.
 The stamps are what later lets rows be compared and synced between databases.
 
-The stamp also records the ``hash_version`` (``base_schemas.core.hash.HASH_VERSION``)
+The stamp also records the ``hash_version`` (``scene_pipelines.core.hash.HASH_VERSION``)
 of the hash. A stamp of another hash version counts as missing for ``VERIFY``.
 
 Each ingestion package has its own writer version (``SCENE_WRITER_VERSION``,
@@ -59,7 +59,7 @@ by the first write and should not be changed later (ignored with a warning).
 ``Lab`` and ``Project`` are catalog tables shared across the collaboration. They
 are marked ``SyncAuthority.CENTRAL`` and ``WriteRole.ADMIN`` (acquisition
 accounts SELECT only) and are created with the helpers in
-``base_schemas.ingestion.scene.admin``:
+``scene_pipelines.ingestion.scene.admin``:
 
 - ``ensure_lab`` — insert a lab row, return its key
 - ``ensure_project`` — insert a project row, return its key
@@ -70,7 +70,7 @@ accounts SELECT only) and are created with the helpers in
 
 ``Subject`` and ``Session`` are everyday writes, marked ``WriteRole.ACQUISITION``
 (acquisition accounts only). They are inserted locally by one team and later
-shared with the consortium. Helpers live in ``base_schemas.ingestion``:
+shared with the consortium. Helpers live in ``scene_pipelines.ingestion``:
 
 - ``register_subject`` — register a generic subject by code, return its key
 - ``register_mouse`` — register a mouse subject by code, return its key
@@ -90,7 +90,7 @@ rejects free-text names but cannot catch every identifying code.
 
 ```python
 from datetime import date
-from base_schemas.ingestion import register_session, register_subject
+from scene_pipelines.ingestion import register_session, register_subject
 
 lab = {"lab_id": "humanlab"}
 participant = register_subject("P042", "human", lab=lab)
@@ -100,7 +100,7 @@ register_session("gaze-session-015", date(2026, 5, 1), lab=lab, subjects=[partic
 Mice are registered with ``register_mouse``, which also writes their ``Mouse`` row:
 
 ```python
-from base_schemas.ingestion.mouse import register_mouse
+from scene_pipelines.ingestion.mouse import register_mouse
 
 lab = {"lab_id": "mlai"}
 mouse = register_mouse("mouse-042", "F", lab=lab)
@@ -117,8 +117,8 @@ Each helper is atomic and joins a transaction that is already open. To make
 several registrations all-or-nothing, wrap them in ``atomic``:
 
 ```python
-from base_schemas.core import atomic
-from base_schemas.schemas.scene.session import Session
+from scene_pipelines.core import atomic
+from scene_pipelines.schemas.scene.session import Session
 
 with atomic(Session.connection):
     subjects = [register_mouse(code, "F", lab=lab) for code in ("mouse-043", "mouse-044")]
@@ -131,8 +131,8 @@ Tables are keyed by the minted id, not by the lab's code. ``subject_key`` and
 ``session_key`` look up the key of a code within a lab; use it as a restriction:
 
 ```python
-from base_schemas.ingestion import session_key, subject_key
-from base_schemas.schemas.mouse.mouse import Mouse
+from scene_pipelines.ingestion import session_key, subject_key
+from scene_pipelines.schemas.mouse.mouse import Mouse
 
 mouse = Mouse & subject_key("mouse-042", lab={"lab_id": "mlai"})  # restriction
 mouse.fetch1()  # the row as a dict
@@ -167,8 +167,8 @@ detecting changed content:
 | ``OVERWRITE`` | overwrite the row in place as an insert would store it (omitted fields reset to their default), and its stamp (sessions: also their subject links); warn when the hash changed |
 
 ```python
-from base_schemas.ingestion.scene import admin
-from base_schemas.ingestion.provenance import DuplicatePolicy
+from scene_pipelines.ingestion.scene import admin
+from scene_pipelines.ingestion.provenance import DuplicatePolicy
 
 admin.ensure_lab({"lab_id": "mlai", "lab_name": "Mathis Lab"}, if_exists=DuplicatePolicy.VERIFY)
 ```
@@ -209,7 +209,7 @@ Schemas stay unbound by default (no DB needed on import). Set
 ``AUTO_ACTIVATE=1`` to bind eagerly, or activate explicitly:
 
 ```python
-from base_schemas.core import SCENE_REGISTRY, activate_schema, load_settings
+from scene_pipelines.core import SCENE_REGISTRY, activate_schema, load_settings
 
 schema = SCENE_REGISTRY.make_schema("scene")  # unbound unless AUTO_ACTIVATE
 # @schema class Lab ...
@@ -259,8 +259,8 @@ pip install .
 From GitHub (`main` can be a commit hash or branch):
 
 ```bash
-pip install "git+ssh://git@github.com/SCENE-Collaboration/Base-schemas.git@main"
-pip install "git+https://github.com/SCENE-Collaboration/Base-schemas.git@main"
+pip install "git+ssh://git@github.com/SCENE-Collaboration/SCENE-pipelines.git@main"
+pip install "git+https://github.com/SCENE-Collaboration/SCENE-pipelines.git@main"
 ```
 
 Build a wheel:
@@ -268,7 +268,7 @@ Build a wheel:
 ```bash
 pip install build
 python -m build .
-pip install dist/base_schemas-*.whl
+pip install dist/scene_pipelines-*.whl
 ```
 
 ## Quickstart (Docker)

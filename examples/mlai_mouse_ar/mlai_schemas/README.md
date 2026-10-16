@@ -12,4 +12,4 @@ to MLAI, in tables that reference the shared ones.
 
 Write helpers: `../mlai_ingestion`. Worked example: `../mouse_ar_example.py`.
 
-Example code: not installed or tested by Base-schemas.
+Example code: not installed or tested by SCENE-pipelines.

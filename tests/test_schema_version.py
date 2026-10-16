@@ -5,8 +5,8 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
-from base_schemas.core import versioning as sv
-from base_schemas.schemas.scene._schema import SCENE_SCHEMA_VERSION
+from scene_pipelines.core import versioning as sv
+from scene_pipelines.schemas.scene._schema import SCENE_SCHEMA_VERSION
 
 
 class TestSchemaVersionStatus:

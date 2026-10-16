@@ -3,18 +3,18 @@
 from __future__ import annotations
 
 import pytest
-from base_schemas.core.access_markers import (
+from scene_pipelines.core.access_markers import (
     SyncAuthority,
     WriteRole,
     sync_authority_of,
     write_role_of,
 )
-from base_schemas.schemas.provenance.deployment import Deployment
-from base_schemas.schemas.provenance.row_meta import RowMetaBase
-from base_schemas.schemas.scene.lab import Lab
-from base_schemas.schemas.scene.project import Project
-from base_schemas.schemas.scene.session import Experimenter, Session
-from base_schemas.schemas.scene.subject import Subject, SubjectKind
+from scene_pipelines.schemas.provenance.deployment import Deployment
+from scene_pipelines.schemas.provenance.row_meta import RowMetaBase
+from scene_pipelines.schemas.scene.lab import Lab
+from scene_pipelines.schemas.scene.project import Project
+from scene_pipelines.schemas.scene.session import Experimenter, Session
+from scene_pipelines.schemas.scene.subject import Subject, SubjectKind
 
 
 def test_catalogs_are_central_and_admin_only():

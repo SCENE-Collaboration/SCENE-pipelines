@@ -1,6 +1,6 @@
 """Populate the legacy MLAI ``mice`` / ``exp`` tables from session JSON/NPY files.
 
-Example-only helper (not part of the installable SCENE ``base_schemas`` API).
+Example-only helper (not part of the installable SCENE ``scene_pipelines`` API).
 """
 
 from __future__ import annotations

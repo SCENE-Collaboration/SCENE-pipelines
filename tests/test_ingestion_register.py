@@ -8,13 +8,13 @@ from datetime import date
 from unittest.mock import MagicMock, PropertyMock, patch
 
 import pytest
-from base_schemas.core.config import deployment_row_from_settings
-from base_schemas.core.db import new_id
-from base_schemas.core.hash import content_hash
-from base_schemas.ingestion.provenance.row_meta import DuplicatePolicy
-from base_schemas.ingestion.scene import SCENE_WRITER_VERSION
-from base_schemas.ingestion.scene import session as session_reg
-from base_schemas.ingestion.scene import subject as subject_reg
+from scene_pipelines.core.config import deployment_row_from_settings
+from scene_pipelines.core.db import new_id
+from scene_pipelines.core.hash import content_hash
+from scene_pipelines.ingestion.provenance.row_meta import DuplicatePolicy
+from scene_pipelines.ingestion.scene import SCENE_WRITER_VERSION
+from scene_pipelines.ingestion.scene import session as session_reg
+from scene_pipelines.ingestion.scene import subject as subject_reg
 
 
 def test_new_id_is_uuid4():

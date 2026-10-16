@@ -5,7 +5,7 @@ are not repeated here. Every table below hangs off ``Mouse`` by ``subject_id``.
 """
 
 import datajoint as dj
-from base_schemas.schemas.mouse.mouse import Mouse  # noqa: F401  # FK context
+from scene_pipelines.schemas.mouse.mouse import Mouse  # noqa: F401  # FK context
 
 from mlai_schemas._schema import schema
 

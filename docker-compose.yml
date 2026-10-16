@@ -2,7 +2,7 @@ services:
 
   db:
     image: mysql:8.0
-    container_name: base_schemas_db
+    container_name: scene_pipelines_db
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_0900_ai_ci
@@ -27,15 +27,15 @@ services:
       start_period: 60s
 
   client:
-    image: base_schemas_app
-    container_name: base_schemas_app
+    image: scene_pipelines_app
+    container_name: scene_pipelines_app
     build:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./:/base-schemas
+      - ./:/scene-pipelines
       - ${DATABASE_MOUNT:-./.dbdata}/shared:/shared
-    working_dir: /base-schemas
+    working_dir: /scene-pipelines
     env_file:
       - .env
     environment:

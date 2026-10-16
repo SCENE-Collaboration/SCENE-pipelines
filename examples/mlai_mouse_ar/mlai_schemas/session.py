@@ -6,7 +6,7 @@ stored any more: both follow from the session dates.
 """
 
 import datajoint as dj
-from base_schemas.schemas.scene.session import Experimenter, Session  # noqa: F401  # FK context
+from scene_pipelines.schemas.scene.session import Experimenter, Session  # noqa: F401  # FK context
 
 from mlai_schemas._schema import schema
 from mlai_schemas.mouse import ScoreSheet  # noqa: F401  # FK context

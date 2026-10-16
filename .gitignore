@@ -1,6 +1,6 @@
 __pycache__/
 *.py[cod]
-base_schemas.egg-info/
+scene_pipelines.egg-info/
 dist/
 .venv
 .python-version

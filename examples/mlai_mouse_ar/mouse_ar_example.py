@@ -8,8 +8,8 @@ It writes under the schema prefix ``mousear_example_`` and can be re-run.
 
 The layers, from shared to specific::
 
-    scene (shared)       Lab, Project, Subject, Session          base_schemas
-    mouse (shared)       Strain, Mouse                           base_schemas
+    scene (shared)       Lab, Project, Subject, Session          scene_pipelines
+    mouse (shared)       Strain, Mouse                           scene_pipelines
     mlai (lab)           MouseInfo, SessionInfo, score sheets    mlai_schemas, mlai_ingestion
     mousear (pipeline)   Dataset, SessionDataset, ...            this file (the MouseAR repo)
 
@@ -30,14 +30,6 @@ import tempfile
 from pathlib import Path
 
 import datajoint as dj
-from base_schemas.core import SCENE_REGISTRY, load_settings
-from base_schemas.ingestion.mouse import ensure_strain
-from base_schemas.ingestion.provenance import DuplicatePolicy
-from base_schemas.ingestion.scene import admin
-from base_schemas.schemas.mouse.mouse import Mouse, Strain
-from base_schemas.schemas.scene.project import Project
-from base_schemas.schemas.scene.session import Session
-from base_schemas.schemas.scene.subject import Subject
 from mlai_ingestion.ingestion import (
     MLAI_LAB,
     MLAI_LAB_KEY,
@@ -48,6 +40,14 @@ from mlai_ingestion.ingestion import (
 from mlai_ingestion.populate import populate_base, scan_directory
 from mlai_schemas.mouse import Sacrificed, ScoreSheet
 from mlai_schemas.session import SessionInfo, SessionScoreSheet
+from scene_pipelines.core import SCENE_REGISTRY, load_settings
+from scene_pipelines.ingestion.mouse import ensure_strain
+from scene_pipelines.ingestion.provenance import DuplicatePolicy
+from scene_pipelines.ingestion.scene import admin
+from scene_pipelines.schemas.mouse.mouse import Mouse, Strain
+from scene_pipelines.schemas.scene.project import Project
+from scene_pipelines.schemas.scene.session import Session
+from scene_pipelines.schemas.scene.subject import Subject
 from utils import connect_to_database
 
 MOUSEAR_PROJECT = {

@@ -1,7 +1,7 @@
 """Unit tests for core config (no database)."""
 
 import pytest
-from base_schemas.core import load_settings
+from scene_pipelines.core import load_settings
 
 
 def test_load_settings_default(monkeypatch):
@@ -54,7 +54,7 @@ def test_db_name_rejects_empty_suffix(monkeypatch):
 
 
 def test_lab_key_from_settings(monkeypatch):
-    from base_schemas.core.config import lab_key_from_settings
+    from scene_pipelines.core.config import lab_key_from_settings
 
     monkeypatch.setenv("SCENE_LAB_ID", " mlai ")
     assert load_settings().lab_id == "mlai"

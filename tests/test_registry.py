@@ -1,9 +1,9 @@
 """Unit tests for SchemaRegistry / activate_schema (no database)."""
 
-import base_schemas.core.registry as registry_mod
 import datajoint as dj
 import pytest
-from base_schemas.core import SCENE_REGISTRY, SchemaRegistry
+import scene_pipelines.core.registry as registry_mod
+from scene_pipelines.core import SCENE_REGISTRY, SchemaRegistry
 
 
 @pytest.fixture

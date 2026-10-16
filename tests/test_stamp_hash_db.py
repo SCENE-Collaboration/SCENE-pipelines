@@ -22,13 +22,13 @@ pytestmark = [
 
 def test_overwrite_resets_omitted_nullable_field_and_stamp_matches(dj_connection):
     """OVERWRITE stores the row as an insert would, so the stamp matches the stored row."""
-    from base_schemas.core.hash import content_hash
-    from base_schemas.ingestion.provenance import DuplicatePolicy, insert_tracked_row
-    from base_schemas.ingestion.scene.session import session_meta_payload
-    from base_schemas.schemas.provenance.row_meta import SessionRowMeta
-    from base_schemas.schemas.scene.lab import Lab
-    from base_schemas.schemas.scene.project import Project
-    from base_schemas.schemas.scene.session import Session
+    from scene_pipelines.core.hash import content_hash
+    from scene_pipelines.ingestion.provenance import DuplicatePolicy, insert_tracked_row
+    from scene_pipelines.ingestion.scene.session import session_meta_payload
+    from scene_pipelines.schemas.provenance.row_meta import SessionRowMeta
+    from scene_pipelines.schemas.scene.lab import Lab
+    from scene_pipelines.schemas.scene.project import Project
+    from scene_pipelines.schemas.scene.session import Session
 
     deployment = {"deployment_id": "test-local", "label": "test"}
     Lab.insert1({"lab_id": "nul_lab"}, skip_duplicates=True)
@@ -74,8 +74,8 @@ _PRE_COERCION = (
 
 @pytest.mark.xfail(strict=True, raises=ValueError, reason=_PRE_COERCION)
 def test_verify_accepts_datetime_for_stored_date(dj_connection, monkeypatch):
-    from base_schemas.ingestion import register_session
-    from base_schemas.schemas.scene.lab import Lab
+    from scene_pipelines.ingestion import register_session
+    from scene_pipelines.schemas.scene.lab import Lab
 
     monkeypatch.setenv("SCENE_DEPLOYMENT_ID", "test-local")
     monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", "test")
@@ -87,8 +87,8 @@ def test_verify_accepts_datetime_for_stored_date(dj_connection, monkeypatch):
 
 @pytest.mark.xfail(strict=True, raises=ValueError, reason=_PRE_COERCION)
 def test_verify_accepts_int_for_stored_varchar(dj_connection, monkeypatch):
-    from base_schemas.ingestion.provenance import DuplicatePolicy
-    from base_schemas.ingestion.scene.admin import ensure_lab
+    from scene_pipelines.ingestion.provenance import DuplicatePolicy
+    from scene_pipelines.ingestion.scene.admin import ensure_lab
 
     monkeypatch.setenv("SCENE_DEPLOYMENT_ID", "test-local")
     monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", "test")

@@ -28,9 +28,9 @@ def mlai(dj_connection, monkeypatch):
     monkeypatch.syspath_prepend(str(EXAMPLE_DIR))
     monkeypatch.setenv("SCENE_DEPLOYMENT_ID", "test-local")
     monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", "test")
-    from base_schemas.ingestion.provenance import DuplicatePolicy
-    from base_schemas.ingestion.scene import admin
     from mlai_ingestion import ingestion
+    from scene_pipelines.ingestion.provenance import DuplicatePolicy
+    from scene_pipelines.ingestion.scene import admin
 
     admin.ensure_lab(ingestion.MLAI_LAB, if_exists=DuplicatePolicy.VERIFY)
     return ingestion
@@ -38,7 +38,7 @@ def mlai(dj_connection, monkeypatch):
 
 def test_register_mlai_mouse_taken_facility_id_raises(mlai):
     import datajoint as dj
-    from base_schemas.schemas.scene.subject import Subject
+    from scene_pipelines.schemas.scene.subject import Subject
 
     mlai.register_mlai_mouse("clash-1", "F", mouse_id=90001)
     with pytest.raises(dj.errors.DuplicateError):
@@ -48,7 +48,7 @@ def test_register_mlai_mouse_taken_facility_id_raises(mlai):
 
 def test_ensure_mlai_experimenter_taken_name_raises(mlai):
     import datajoint as dj
-    from base_schemas.schemas.scene.session import Experimenter
+    from scene_pipelines.schemas.scene.session import Experimenter
 
     key = mlai.ensure_mlai_experimenter("exp-clash-1", "clashname")
     assert mlai.ensure_mlai_experimenter("exp-clash-1", "clashname") == key

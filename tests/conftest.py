@@ -1,4 +1,4 @@
-"""Shared pytest fixtures for base_schemas unit tests."""
+"""Shared pytest fixtures for scene_pipelines unit tests."""
 
 import os
 import sys

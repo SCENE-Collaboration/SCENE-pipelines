@@ -15,30 +15,30 @@ pytestmark = [
 
 
 def test_import_lab_module(dj_connection):
-    module = importlib.import_module("base_schemas.schemas.scene.lab")
+    module = importlib.import_module("scene_pipelines.schemas.scene.lab")
     assert module is not None
 
 
 def test_import_subject_module(dj_connection):
-    module = importlib.import_module("base_schemas.schemas.scene.subject")
+    module = importlib.import_module("scene_pipelines.schemas.scene.subject")
     assert module is not None
 
 
 def test_import_project_module(dj_connection):
-    module = importlib.import_module("base_schemas.schemas.scene.project")
+    module = importlib.import_module("scene_pipelines.schemas.scene.project")
     assert module is not None
 
 
 def test_import_session_module(dj_connection):
-    module = importlib.import_module("base_schemas.schemas.scene.session")
+    module = importlib.import_module("scene_pipelines.schemas.scene.session")
     assert module is not None
 
 
 def test_import_deployment_module(dj_connection):
-    module = importlib.import_module("base_schemas.schemas.provenance.deployment")
+    module = importlib.import_module("scene_pipelines.schemas.provenance.deployment")
     assert module is not None
 
 
 def test_import_row_meta_module(dj_connection):
-    module = importlib.import_module("base_schemas.schemas.provenance.row_meta")
+    module = importlib.import_module("scene_pipelines.schemas.provenance.row_meta")
     assert module is not None

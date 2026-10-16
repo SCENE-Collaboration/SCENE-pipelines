@@ -66,5 +66,5 @@ jobs:
         if: steps.generate_erd.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: base-schemas-erd
-          path: base_schemas_erd.png
+          name: scene-pipelines-erd
+          path: scene_pipelines_erd.png

@@ -1,7 +1,7 @@
 """DataJoint schema object and DDL version for the MLAI tables."""
 
-from base_schemas.core import SCENE_REGISTRY
-from base_schemas.core.versioning import SchemaVersionTable
+from scene_pipelines.core import SCENE_REGISTRY
+from scene_pipelines.core.versioning import SchemaVersionTable
 
 # Registered like the shared schemas: unbound on import, and activating it
 # activates the shared schemas it references first.

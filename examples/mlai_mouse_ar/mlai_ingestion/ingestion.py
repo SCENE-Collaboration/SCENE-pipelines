@@ -9,14 +9,14 @@ from __future__ import annotations
 from datetime import date
 from typing import Any
 
-from base_schemas.core.db import atomic, lookup_key
-from base_schemas.ingestion.mouse import register_mouse
-from base_schemas.ingestion.provenance import DuplicatePolicy
-from base_schemas.ingestion.scene import register_session
-from base_schemas.schemas.scene.session import Experimenter, Session
-from base_schemas.schemas.scene.subject import Subject
 from mlai_schemas.mouse import MouseInfo, ScoreSheet, WaterRestriction
 from mlai_schemas.session import ExperimenterInfo, SessionInfo, SessionScoreSheet
+from scene_pipelines.core.db import atomic, lookup_key
+from scene_pipelines.ingestion.mouse import register_mouse
+from scene_pipelines.ingestion.provenance import DuplicatePolicy
+from scene_pipelines.ingestion.scene import register_session
+from scene_pipelines.schemas.scene.session import Experimenter, Session
+from scene_pipelines.schemas.scene.subject import Subject
 
 MLAI_LAB = {
     "lab_id": "mlai",

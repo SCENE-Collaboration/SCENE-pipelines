@@ -16,9 +16,9 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from base_schemas.core.db import lookup_key
-from base_schemas.schemas.scene.session import Session
-from base_schemas.schemas.scene.subject import Subject
+from scene_pipelines.core.db import lookup_key
+from scene_pipelines.schemas.scene.session import Session
+from scene_pipelines.schemas.scene.subject import Subject
 
 from mlai_ingestion.ingestion import MLAI_LAB_KEY, register_mlai_session, session_code
 

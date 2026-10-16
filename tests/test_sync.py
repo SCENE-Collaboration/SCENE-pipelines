@@ -1,4 +1,4 @@
-"""Unit tests for base_schemas.scripts.sync.
+"""Unit tests for scene_pipelines.scripts.sync.
 
 These tests mock out dj.Instance and FreeTable. They verify argument plumbing
 and the sync loop logic without needing two live MySQL servers.
@@ -7,7 +7,7 @@ and the sync loop logic without needing two live MySQL servers.
 from unittest.mock import MagicMock, patch
 
 import pytest
-from base_schemas.scripts import sync
+from scene_pipelines.scripts import sync
 
 
 class FakeTransaction:

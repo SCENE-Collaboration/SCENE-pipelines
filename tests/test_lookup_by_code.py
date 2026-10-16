@@ -3,8 +3,8 @@
 from unittest.mock import patch
 
 import pytest
-from base_schemas.ingestion.scene import session as session_reg
-from base_schemas.ingestion.scene import subject as subject_reg
+from scene_pipelines.ingestion.scene import session as session_reg
+from scene_pipelines.ingestion.scene import subject as subject_reg
 
 LAB = {"lab_id": "mlai"}
 

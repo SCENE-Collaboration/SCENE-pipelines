@@ -21,12 +21,12 @@ pytestmark = [
 
 
 def test_mouse_extends_subject_roundtrip(dj_connection, monkeypatch):
-    from base_schemas.ingestion.mouse.mouse import register_mouse
-    from base_schemas.ingestion.mouse.strain import ensure_strain
-    from base_schemas.ingestion.provenance import DuplicatePolicy
-    from base_schemas.ingestion.scene.admin import ensure_lab
-    from base_schemas.schemas.mouse.mouse import Mouse, Strain
-    from base_schemas.schemas.scene.subject import Subject
+    from scene_pipelines.ingestion.mouse.mouse import register_mouse
+    from scene_pipelines.ingestion.mouse.strain import ensure_strain
+    from scene_pipelines.ingestion.provenance import DuplicatePolicy
+    from scene_pipelines.ingestion.scene.admin import ensure_lab
+    from scene_pipelines.schemas.mouse.mouse import Mouse, Strain
+    from scene_pipelines.schemas.scene.subject import Subject
 
     monkeypatch.setenv("SCENE_DEPLOYMENT_ID", "test-local")
     monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", "test")
@@ -54,10 +54,10 @@ def test_mouse_extends_subject_roundtrip(dj_connection, monkeypatch):
 
 
 def test_ensure_strain_keeps_one_spelling_and_one_row_per_rrid(dj_connection, monkeypatch):
-    from base_schemas.ingestion.mouse.strain import ensure_strain
-    from base_schemas.ingestion.provenance import DuplicatePolicy
-    from base_schemas.schemas.mouse.mouse import Strain
-    from base_schemas.schemas.mouse.row_meta import StrainRowMeta
+    from scene_pipelines.ingestion.mouse.strain import ensure_strain
+    from scene_pipelines.ingestion.provenance import DuplicatePolicy
+    from scene_pipelines.schemas.mouse.mouse import Strain
+    from scene_pipelines.schemas.mouse.row_meta import StrainRowMeta
 
     monkeypatch.setenv("SCENE_DEPLOYMENT_ID", "test-local")
     monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", "test")
@@ -101,18 +101,18 @@ def test_ensure_strain_keeps_one_spelling_and_one_row_per_rrid(dj_connection, mo
 
 
 def test_register_mouse_writes_subject_and_mouse_atomically(dj_connection, monkeypatch):
-    from base_schemas.ingestion import register_subject
-    from base_schemas.ingestion.mouse import MOUSE_WRITER_VERSION
-    from base_schemas.ingestion.mouse.mouse import register_mouse
-    from base_schemas.ingestion.mouse.strain import ensure_strain
-    from base_schemas.ingestion.provenance import DuplicatePolicy
-    from base_schemas.ingestion.scene import SCENE_WRITER_VERSION
-    from base_schemas.ingestion.scene.admin import ensure_lab
-    from base_schemas.ingestion.scene.subject import _register_subject
-    from base_schemas.schemas.mouse.mouse import Mouse
-    from base_schemas.schemas.mouse.row_meta import MouseRowMeta
-    from base_schemas.schemas.provenance.row_meta import SubjectRowMeta
-    from base_schemas.schemas.scene.subject import Subject
+    from scene_pipelines.ingestion import register_subject
+    from scene_pipelines.ingestion.mouse import MOUSE_WRITER_VERSION
+    from scene_pipelines.ingestion.mouse.mouse import register_mouse
+    from scene_pipelines.ingestion.mouse.strain import ensure_strain
+    from scene_pipelines.ingestion.provenance import DuplicatePolicy
+    from scene_pipelines.ingestion.scene import SCENE_WRITER_VERSION
+    from scene_pipelines.ingestion.scene.admin import ensure_lab
+    from scene_pipelines.ingestion.scene.subject import _register_subject
+    from scene_pipelines.schemas.mouse.mouse import Mouse
+    from scene_pipelines.schemas.mouse.row_meta import MouseRowMeta
+    from scene_pipelines.schemas.provenance.row_meta import SubjectRowMeta
+    from scene_pipelines.schemas.scene.subject import Subject
 
     monkeypatch.setenv("SCENE_DEPLOYMENT_ID", "test-local")
     monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", "test")
@@ -176,7 +176,7 @@ def test_register_mouse_writes_subject_and_mouse_atomically(dj_connection, monke
 
 def test_mouse_requires_an_existing_subject(dj_connection):
     import datajoint as dj
-    from base_schemas.schemas.mouse.mouse import Mouse
+    from scene_pipelines.schemas.mouse.mouse import Mouse
 
     with pytest.raises(dj.errors.IntegrityError):
         Mouse.insert1({"subject_id": "c" * 32, "sex": "M"})

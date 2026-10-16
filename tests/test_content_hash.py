@@ -2,7 +2,7 @@
 
 from datetime import date
 
-from base_schemas.core.hash import content_hash
+from scene_pipelines.core.hash import content_hash
 
 
 def test_content_hash_stable():

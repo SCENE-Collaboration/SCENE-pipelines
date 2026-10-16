@@ -29,8 +29,8 @@ def _clear_schema_version_test_rows(SchemaVersion):
 
 
 def test_lab_session_insert_roundtrip(dj_connection):
-    from base_schemas.schemas.scene.lab import Lab
-    from base_schemas.schemas.scene.session import Session
+    from scene_pipelines.schemas.scene.lab import Lab
+    from scene_pipelines.schemas.scene.session import Session
 
     lab_key = {"lab_id": "testlab"}
     Lab.insert1(
@@ -59,10 +59,10 @@ def test_lab_session_insert_roundtrip(dj_connection):
 
 
 def test_subject_project_and_multi_subject_session(dj_connection):
-    from base_schemas.schemas.scene.lab import Lab
-    from base_schemas.schemas.scene.project import Project
-    from base_schemas.schemas.scene.session import Experimenter, Session
-    from base_schemas.schemas.scene.subject import Subject, SubjectKind
+    from scene_pipelines.schemas.scene.lab import Lab
+    from scene_pipelines.schemas.scene.project import Project
+    from scene_pipelines.schemas.scene.session import Experimenter, Session
+    from scene_pipelines.schemas.scene.subject import Subject, SubjectKind
 
     lab_key = {"lab_id": "spine"}
     Lab.insert1(
@@ -110,8 +110,8 @@ def test_subject_project_and_multi_subject_session(dj_connection):
 
 def test_session_links_only_an_experimenter_of_its_own_lab(dj_connection):
     import datajoint as dj
-    from base_schemas.schemas.scene.lab import Lab
-    from base_schemas.schemas.scene.session import Experimenter, Session
+    from scene_pipelines.schemas.scene.lab import Lab
+    from scene_pipelines.schemas.scene.session import Experimenter, Session
 
     own, other = {"lab_id": "exp_lab_16_chars"}, {"lab_id": "exp_other"}
     Lab.insert([own, other], skip_duplicates=True)
@@ -126,9 +126,9 @@ def test_session_links_only_an_experimenter_of_its_own_lab(dj_connection):
 
 
 def test_register_session_rejects_subject_of_another_lab(dj_connection, monkeypatch):
-    from base_schemas.ingestion import register_session, register_subject
-    from base_schemas.schemas.scene.lab import Lab
-    from base_schemas.schemas.scene.session import Session
+    from scene_pipelines.ingestion import register_session, register_subject
+    from scene_pipelines.schemas.scene.lab import Lab
+    from scene_pipelines.schemas.scene.session import Session
 
     monkeypatch.setenv("SCENE_DEPLOYMENT_ID", "test-local")
     monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", "test")
@@ -143,15 +143,15 @@ def test_register_session_rejects_subject_of_another_lab(dj_connection, monkeypa
 
 
 def test_register_session_mints_id_and_stores_name(dj_connection, monkeypatch):
-    from base_schemas.core.hash import content_hash
-    from base_schemas.ingestion import SCENE_WRITER_VERSION, register_session
-    from base_schemas.ingestion.provenance import DuplicatePolicy
-    from base_schemas.ingestion.scene.session import session_meta_payload
-    from base_schemas.schemas.provenance.row_meta import SessionRowMeta
-    from base_schemas.schemas.scene.lab import Lab
-    from base_schemas.schemas.scene.project import Project
-    from base_schemas.schemas.scene.session import Experimenter, Session
-    from base_schemas.schemas.scene.subject import Subject
+    from scene_pipelines.core.hash import content_hash
+    from scene_pipelines.ingestion import SCENE_WRITER_VERSION, register_session
+    from scene_pipelines.ingestion.provenance import DuplicatePolicy
+    from scene_pipelines.ingestion.scene.session import session_meta_payload
+    from scene_pipelines.schemas.provenance.row_meta import SessionRowMeta
+    from scene_pipelines.schemas.scene.lab import Lab
+    from scene_pipelines.schemas.scene.project import Project
+    from scene_pipelines.schemas.scene.session import Experimenter, Session
+    from scene_pipelines.schemas.scene.subject import Subject
 
     monkeypatch.setenv("SCENE_DEPLOYMENT_ID", "test-local")
     monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", "test")
@@ -235,12 +235,12 @@ def test_register_session_mints_id_and_stores_name(dj_connection, monkeypatch):
 
 
 def test_ensure_lab_duplicate_policy_roundtrip(dj_connection, monkeypatch):
-    from base_schemas.core.hash import content_hash
-    from base_schemas.ingestion.provenance import DuplicatePolicy
-    from base_schemas.ingestion.scene.admin import ensure_lab
-    from base_schemas.ingestion.scene.admin.lab import lab_meta_payload
-    from base_schemas.schemas.provenance.row_meta import LabRowMeta
-    from base_schemas.schemas.scene.lab import Lab
+    from scene_pipelines.core.hash import content_hash
+    from scene_pipelines.ingestion.provenance import DuplicatePolicy
+    from scene_pipelines.ingestion.scene.admin import ensure_lab
+    from scene_pipelines.ingestion.scene.admin.lab import lab_meta_payload
+    from scene_pipelines.schemas.provenance.row_meta import LabRowMeta
+    from scene_pipelines.schemas.scene.lab import Lab
 
     monkeypatch.setenv("SCENE_DEPLOYMENT_ID", "policy-dep")
     monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", "policy")
@@ -274,13 +274,13 @@ def test_ensure_lab_duplicate_policy_roundtrip(dj_connection, monkeypatch):
 
 
 def test_register_subjects_and_session_in_one_transaction(dj_connection, monkeypatch):
-    from base_schemas.core.db import atomic
-    from base_schemas.ingestion import register_session
-    from base_schemas.ingestion.scene.subject import _register_subject
-    from base_schemas.schemas.provenance.row_meta import SessionRowMeta, SubjectRowMeta
-    from base_schemas.schemas.scene.lab import Lab
-    from base_schemas.schemas.scene.session import Session
-    from base_schemas.schemas.scene.subject import Subject
+    from scene_pipelines.core.db import atomic
+    from scene_pipelines.ingestion import register_session
+    from scene_pipelines.ingestion.scene.subject import _register_subject
+    from scene_pipelines.schemas.provenance.row_meta import SessionRowMeta, SubjectRowMeta
+    from scene_pipelines.schemas.scene.lab import Lab
+    from scene_pipelines.schemas.scene.session import Session
+    from scene_pipelines.schemas.scene.subject import Subject
 
     monkeypatch.setenv("SCENE_DEPLOYMENT_ID", "test-local")
     monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", "test")
@@ -320,12 +320,12 @@ def test_register_subjects_and_session_in_one_transaction(dj_connection, monkeyp
 def test_overwrite_keeps_subject_links_that_a_lab_table_references(dj_connection, monkeypatch):
     """OVERWRITE rewrites only the subject links that differ (FKs are ON DELETE RESTRICT)."""
     import datajoint as dj
-    from base_schemas.core.config import load_settings
-    from base_schemas.ingestion import register_session
-    from base_schemas.ingestion.provenance import DuplicatePolicy
-    from base_schemas.ingestion.scene.subject import _register_subject
-    from base_schemas.schemas.scene.lab import Lab
-    from base_schemas.schemas.scene.session import Session
+    from scene_pipelines.core.config import load_settings
+    from scene_pipelines.ingestion import register_session
+    from scene_pipelines.ingestion.provenance import DuplicatePolicy
+    from scene_pipelines.ingestion.scene.subject import _register_subject
+    from scene_pipelines.schemas.scene.lab import Lab
+    from scene_pipelines.schemas.scene.session import Session
 
     monkeypatch.setenv("SCENE_DEPLOYMENT_ID", "test-local")
     monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", "test")
@@ -385,8 +385,8 @@ def test_overwrite_keeps_subject_links_that_a_lab_table_references(dj_connection
 
 
 def test_ensure_schema_version_idempotent_then_assert(dj_connection):
-    from base_schemas.core.versioning import assert_schema_compatible, ensure_schema_version
-    from base_schemas.schemas.scene._schema import (
+    from scene_pipelines.core.versioning import assert_schema_compatible, ensure_schema_version
+    from scene_pipelines.schemas.scene._schema import (
         SCENE_SCHEMA_VERSION,
         SchemaVersion,
     )
@@ -405,18 +405,18 @@ def test_ensure_schema_version_idempotent_then_assert(dj_connection):
 
 
 def test_assert_schema_compatible_mismatch_against_live_db(dj_connection, monkeypatch):
-    from base_schemas.core import versioning
-    from base_schemas.core.versioning import (
+    from scene_pipelines.core import versioning
+    from scene_pipelines.core.versioning import (
         SchemaVersionError,
         assert_schema_compatible,
         ensure_schema_version,
     )
-    from base_schemas.ingestion.scene.admin import ensure_lab
-    from base_schemas.schemas.scene._schema import (
+    from scene_pipelines.ingestion.scene.admin import ensure_lab
+    from scene_pipelines.schemas.scene._schema import (
         SCENE_SCHEMA_VERSION,
         SchemaVersion,
     )
-    from base_schemas.schemas.scene.lab import Lab
+    from scene_pipelines.schemas.scene.lab import Lab
 
     _clear_schema_version_test_rows(SchemaVersion)
     ensure_schema_version(SCENE_SCHEMA_VERSION, SchemaVersion, notes="test-init")

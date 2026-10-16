@@ -8,4 +8,4 @@ relative) differ.
 Kept for migrating existing data to the shared layer. Do not build new
 pipelines on them.
 
-Not installed or tested by Base-schemas.
+Not installed or tested by SCENE-pipelines.

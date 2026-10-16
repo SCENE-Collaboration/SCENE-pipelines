@@ -8,9 +8,9 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
-from base_schemas.core.hash import HASH_VERSION, content_hash
-from base_schemas.ingestion.provenance import row_meta as row_meta_mod
-from base_schemas.ingestion.provenance.row_meta import DuplicatePolicy, insert_tracked_row
+from scene_pipelines.core.hash import HASH_VERSION, content_hash
+from scene_pipelines.ingestion.provenance import row_meta as row_meta_mod
+from scene_pipelines.ingestion.provenance.row_meta import DuplicatePolicy, insert_tracked_row
 
 _DEPLOYMENT = {"deployment_id": "dep1", "label": "Dep"}
 _LAB = {"lab_id": "mlai", "lab_name": "Mathis Lab", "institution": "EPFL"}

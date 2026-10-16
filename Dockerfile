@@ -15,9 +15,9 @@ RUN groupadd -o -g ${gid} ${user_name} \
 USER ${user_name}
 ENV PATH="/home/${user_name}/.local/bin:${PATH}"
 
-# COPY creates /base-schemas owned by the user, so pip -e can write egg-info.
-COPY --chown=${uid}:${gid} . /base-schemas
-WORKDIR /base-schemas
+# COPY creates /scene-pipelines owned by the user, so pip -e can write egg-info.
+COPY --chown=${uid}:${gid} . /scene-pipelines
+WORKDIR /scene-pipelines
 RUN pip install --no-cache-dir --user -e ".[dev]"
 
 CMD ["bash"]

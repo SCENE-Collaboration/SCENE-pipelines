@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "base-schemas"
+name = "scene-pipelines"
 version = "2.0.0"
 description = "SCENE shared DataJoint base schemas (legacy mice/exp + emerging SCENE spine)"
 readme = "README.md"
@@ -22,7 +22,7 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["base_schemas*"]
+include = ["scene_pipelines*"]
 
 [tool.pytest.ini_options]
 markers = [
@@ -37,7 +37,7 @@ filterwarnings = [
 [tool.ruff]
 line-length = 100
 target-version = "py310"
-src = ["base_schemas", "tests"]
+src = ["scene_pipelines", "tests"]
 # Honor the excludes below also for paths passed explicitly (pre-commit does that).
 force-exclude = true
 extend-exclude = [
@@ -72,6 +72,6 @@ ignore = [
 convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
-"base_schemas/scripts/*.py" = ["E501"]
+"scene_pipelines/scripts/*.py" = ["E501"]
 "tests/**/*.py" = ["E501", "D"]
 "examples/mlai_mouse_ar/**/*.py" = ["D"]

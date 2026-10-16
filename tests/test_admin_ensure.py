@@ -3,10 +3,10 @@
 from unittest.mock import patch
 
 import pytest
-from base_schemas.ingestion.provenance.row_meta import DuplicatePolicy
-from base_schemas.ingestion.scene import SCENE_WRITER_VERSION
-from base_schemas.ingestion.scene.admin import lab as lab_admin
-from base_schemas.ingestion.scene.admin import project as project_admin
+from scene_pipelines.ingestion.provenance.row_meta import DuplicatePolicy
+from scene_pipelines.ingestion.scene import SCENE_WRITER_VERSION
+from scene_pipelines.ingestion.scene.admin import lab as lab_admin
+from scene_pipelines.ingestion.scene.admin import project as project_admin
 
 
 def test_ensure_lab_delegates_to_insert_tracked_row(monkeypatch):

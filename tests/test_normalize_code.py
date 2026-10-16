@@ -1,5 +1,5 @@
 import pytest
-from base_schemas.ingestion.normalization import normalize_code
+from scene_pipelines.ingestion.normalization import normalize_code
 
 
 @pytest.mark.parametrize("value", ["P012", " sub-01 ", "mouse_042", "run.3", "A"])

@@ -44,9 +44,9 @@ def wait_for_database(max_attempts=30, delay_seconds=2):
     raise RuntimeError(f"MySQL connection failed: {last_error}")
 
 
-def generate_erd(output_path="base_schemas_erd.png"):
-    from base_schemas.schemas.provenance import deployment, row_meta
-    from base_schemas.schemas.scene import lab, session
+def generate_erd(output_path="scene_pipelines_erd.png"):
+    from scene_pipelines.schemas.provenance import deployment, row_meta
+    from scene_pipelines.schemas.scene import lab, session
 
     (
         dj.Diagram(lab.schema)

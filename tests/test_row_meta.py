@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import pytest
-from base_schemas.schemas.mouse.row_meta import MouseRowMeta, StrainRowMeta
-from base_schemas.schemas.provenance.row_meta import (
+from scene_pipelines.schemas.mouse.row_meta import MouseRowMeta, StrainRowMeta
+from scene_pipelines.schemas.provenance.row_meta import (
     LabRowMeta,
     ProjectRowMeta,
     RowMetaBase,

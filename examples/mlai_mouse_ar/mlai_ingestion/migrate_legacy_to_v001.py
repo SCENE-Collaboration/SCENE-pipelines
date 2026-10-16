@@ -14,10 +14,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from base_schemas.core.db import lookup_key
-from base_schemas.schemas.scene.subject import Subject
 from mlai_schemas import mouse, session
 from mlai_schemas._schema import MLAI_SCHEMA_VERSION
+from scene_pipelines.core.db import lookup_key
+from scene_pipelines.schemas.scene.subject import Subject
 
 from mlai_ingestion.ingestion import MLAI_LAB_KEY, ensure_mlai_experimenter, register_mlai_mouse
 from mlai_ingestion.populate import SCORE_SHEET_FIELDS, register_from_manifest
