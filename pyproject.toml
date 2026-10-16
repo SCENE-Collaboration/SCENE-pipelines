@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scene-pipelines"
-version = "2.0.0"
-description = "SCENE shared DataJoint base schemas (legacy mice/exp + emerging SCENE spine)"
+version = "0.0.1"
+description = "SCENE shared DataJoint schemas and ingestion helpers"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
