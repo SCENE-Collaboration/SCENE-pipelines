@@ -2,6 +2,8 @@
 
 Shared [DataJoint](https://datajoint.com/) table definitions for SCENE pipelines.
 Keeping them in one package keeps provenance and session structure aligned across labs.
+Migrated with full history from [Base-schemas](https://github.com/SCENE-Collaboration/Base-schemas),
+where the earlier review discussions live.
 
 Current package schemas (placeholders; definitions may change):
 
@@ -13,13 +15,16 @@ Current package schemas (placeholders; definitions may change):
 - `scene_pipelines.schemas.provenance.row_meta` — `LabRowMeta`, `ProjectRowMeta`,
   `SubjectRowMeta`, `SessionRowMeta` (one stamp per tracked row: last and
   origin deployment, writer version, content hash)
+- `scene_pipelines.schemas.mouse.mouse` — `Strain`, `Mouse`
+- `scene_pipelines.schemas.mouse.row_meta` — `StrainRowMeta`, `MouseRowMeta`
 
 Also included:
 
 - `scene_pipelines.scripts.sync` — copy table rows between servers
 - `scene_pipelines.ingestion` — supported write path (`register_session`, …);
   the helper packages mirror `scene_pipelines.schemas`:
-  - `scene_pipelines.ingestion.scene` — `register_subject`, `register_session`;
+  - `scene_pipelines.ingestion.scene` — `register_subject`, `register_session`,
+    lookups `subject_key`, `session_key`;
   - `scene_pipelines.ingestion.scene.admin` — catalog ensures (`ensure_lab`, `ensure_project`; admin DB role);
   - `scene_pipelines.ingestion.mouse` — `ensure_strain`, `register_mouse`;
   - `scene_pipelines.ingestion.provenance` — row stamping and `DuplicatePolicy`;
@@ -256,11 +261,11 @@ pip install -e ".[dev]"
 pip install .
 ```
 
-From GitHub (`main` can be a commit hash or branch):
+From GitHub (`dev` can be a commit hash or branch):
 
 ```bash
-pip install "git+ssh://git@github.com/SCENE-Collaboration/SCENE-pipelines.git@main"
-pip install "git+https://github.com/SCENE-Collaboration/SCENE-pipelines.git@main"
+pip install "git+ssh://git@github.com/SCENE-Collaboration/SCENE-pipelines.git@dev"
+pip install "git+https://github.com/SCENE-Collaboration/SCENE-pipelines.git@dev"
 ```
 
 Build a wheel:
