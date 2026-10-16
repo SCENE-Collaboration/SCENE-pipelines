@@ -302,6 +302,17 @@ make test-db       # MySQL via compose, then pytest tests/ -m db
 
 Mark live-DB tests with `@pytest.mark.db` (registered in `pyproject.toml`).
 
+## Documentation
+
+```bash
+pip install -e ".[docs]"
+make docs          # live preview at http://127.0.0.1:8000
+make docs-build    # build into site/
+```
+
+CI builds the site on every push to `dev` and attaches it to the run as the
+`docs-site` artifact.
+
 ## Acknowledgments
 
 We thank Prof. Mackenzie Mathis, Dr. Tanmay Nath, Dr. Gary Kane, and Dr. Mariia Popova for their early contributions to this codebase, which helped establish the foundation of the shared schemas used across pipelines.

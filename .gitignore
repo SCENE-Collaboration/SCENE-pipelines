@@ -2,6 +2,7 @@ __pycache__/
 *.py[cod]
 scene_pipelines.egg-info/
 dist/
+site/
 .venv
 .python-version
 .metadata_never_index

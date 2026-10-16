@@ -20,6 +20,12 @@ dev = [
     "pytest>=7",
     "ruff>=0.15",
 ]
+docs = [
+    "markdown-callouts>=0.4",
+    "mkdocs>=1.6,<2",  # 2.0 drops the plugin system mkdocstrings relies on
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.26",
+]
 
 [tool.setuptools.packages.find]
 include = ["scene_pipelines*"]

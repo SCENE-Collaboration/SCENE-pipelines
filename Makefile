@@ -11,7 +11,7 @@ BUILD_ARGS := \
 	--build-arg user_name=$(UNAME)
 
 .PHONY: init build_all db_up up_all down_all client_build client_up client_stop \
-	client_down client_bash test test-db
+	client_down client_bash test test-db docs docs-build
 
 init:
 	@cp -n .env.example .env 2>/dev/null || true
@@ -56,3 +56,10 @@ test-db: db_up
 	DJ_HOST=127.0.0.1 DJ_PORT=$${MYSQL_PUBLISH_PORT:-3306} DJ_USER=root DJ_PASS="$$MYSQL_ROOT_PASSWORD" \
 	AUTO_ACTIVATE=1 SCENE_DEPLOYMENT_ID=$${SCENE_DEPLOYMENT_ID:-test-local} \
 		pytest -q tests/ -m db
+
+# Documentation (pip install -e ".[docs]"): live preview, or build into site/.
+docs:
+	mkdocs serve
+
+docs-build:
+	mkdocs build --strict

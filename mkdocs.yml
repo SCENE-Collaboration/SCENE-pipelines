@@ -1,0 +1,66 @@
+site_name: SCENE pipelines
+site_description: SCENE shared DataJoint schemas and ingestion helpers
+repo_url: https://github.com/SCENE-Collaboration/SCENE-pipelines
+edit_uri: edit/dev/docs/
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - navigation.sections
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Light mode
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Overview: index.md
+  - API reference:
+      - Core: reference/core.md
+      - Schemas: reference/schemas.md
+      - Ingestion: reference/ingestion.md
+
+markdown_extensions:
+  - admonition
+  - github-callouts  # README's > [!NOTE] blocks
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.snippets:
+      check_paths: true
+  - tables
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            docstring_style: google
+            show_source: false
+            show_root_heading: true
+            members_order: source
+            separate_signature: true
+            show_signature_annotations: true
+            signature_crossrefs: true
+            filters: ["!^_"]
+
+validation:
+  # README links to repo files (examples/, pyproject.toml) that are not doc pages.
+  links:
+    not_found: info
+    unrecognized_links: info
