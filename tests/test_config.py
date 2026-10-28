@@ -10,12 +10,14 @@ def test_load_settings_default(monkeypatch):
     monkeypatch.delenv("SCENE_DEPLOYMENT_ID", raising=False)
     monkeypatch.delenv("SCENE_DEPLOYMENT_LABEL", raising=False)
     monkeypatch.delenv("SCENE_LAB_ID", raising=False)
+    monkeypatch.delenv("SCENE_STORE", raising=False)
     settings = load_settings()
     assert settings.prefix == ""
     assert settings.auto_activate is False
     assert settings.deployment_id is None
     assert settings.deployment_label == ""
     assert settings.lab_id is None
+    assert settings.store is None
 
 
 def test_load_settings_prefix_and_auto_activate(monkeypatch):

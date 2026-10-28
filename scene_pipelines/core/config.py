@@ -21,6 +21,9 @@ SCENE_DEPLOYMENT_LABEL
 SCENE_LAB_ID
     Optional lab of this deployment, e.g. ``mlai``. Default ``lab`` for the
     lookup helpers (``subject_key``, ``session_key``); never for writes.
+SCENE_STORE
+    Optional store this deployment writes new files to, e.g. ``kccl-raw``.
+    Default ``store`` for the file helpers (``register_file``).
 """
 
 from __future__ import annotations
@@ -46,6 +49,7 @@ class Settings:
     deployment_id: str | None
     deployment_label: str
     lab_id: str | None = None
+    store: str | None = None
 
     def db_name(self, suffix: str) -> str:
         """Full prefixed database name, e.g. ``'scene'`` → ``'dev_scene'``."""
@@ -67,12 +71,14 @@ def load_settings() -> Settings:
     deployment_id = (os.environ.get("SCENE_DEPLOYMENT_ID") or "").strip() or None
     deployment_label = (os.environ.get("SCENE_DEPLOYMENT_LABEL") or "").strip()
     lab_id = (os.environ.get("SCENE_LAB_ID") or "").strip() or None
+    store = (os.environ.get("SCENE_STORE") or "").strip() or None
     return Settings(
         prefix=prefix,
         auto_activate=_env_flag("AUTO_ACTIVATE"),
         deployment_id=deployment_id,
         deployment_label=deployment_label,
         lab_id=lab_id,
+        store=store,
     )
 
 
