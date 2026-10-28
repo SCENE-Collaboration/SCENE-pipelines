@@ -21,3 +21,9 @@
 ::: scene_pipelines.schemas.mouse.mouse
 
 ::: scene_pipelines.schemas.mouse.row_meta
+
+## Files
+
+::: scene_pipelines.schemas.files.files
+
+::: scene_pipelines.schemas.files.row_meta
