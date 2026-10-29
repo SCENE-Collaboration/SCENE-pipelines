@@ -49,7 +49,7 @@ class File(dj.Manual):
     """
 
 
-@mark_write_role(WriteRole.SHARED)
+@mark_write_role(SyncAuthority.SHARED)
 @schema
 class Location(dj.Manual):
     """A copy of a file in a store, at ``object_key(file_sha256)``; it exists while the copy does.
