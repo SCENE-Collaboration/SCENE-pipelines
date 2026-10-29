@@ -22,7 +22,7 @@ SCENE_LAB_ID
     Optional lab of this deployment, e.g. ``mlai``. Default ``lab`` for the
     lookup helpers (``subject_key``, ``session_key``); never for writes.
 SCENE_STORE
-    Optional store this deployment writes new files to, e.g. ``kccl-raw``.
+    Optional store this deployment writes new files to, e.g. ``mlai-raw``.
     Default ``store`` for the file helpers (``register_file``).
 """
 

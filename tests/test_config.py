@@ -30,11 +30,11 @@ def test_load_settings_prefix_and_auto_activate(monkeypatch):
 
 
 def test_load_settings_deployment(monkeypatch):
-    monkeypatch.setenv("SCENE_DEPLOYMENT_ID", " kccl-prod ")
-    monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", " KCCL production ")
+    monkeypatch.setenv("SCENE_DEPLOYMENT_ID", " mlai-prod ")
+    monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", " MLAI production ")
     settings = load_settings()
-    assert settings.deployment_id == "kccl-prod"
-    assert settings.deployment_label == "KCCL production"
+    assert settings.deployment_id == "mlai-prod"
+    assert settings.deployment_label == "MLAI production"
 
 
 def test_schema_prefix_rejects_invalid(monkeypatch):

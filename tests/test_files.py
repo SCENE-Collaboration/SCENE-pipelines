@@ -35,5 +35,5 @@ def test_copy_into_places_the_bytes_at_their_key_once(tmp_path):
 def test_store_setting(monkeypatch):
     monkeypatch.delenv("SCENE_STORE", raising=False)
     assert load_settings().store is None
-    monkeypatch.setenv("SCENE_STORE", " kccl-raw ")
-    assert load_settings().store == "kccl-raw"
+    monkeypatch.setenv("SCENE_STORE", " mlai-raw ")
+    assert load_settings().store == "mlai-raw"

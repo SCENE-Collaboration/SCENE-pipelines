@@ -25,7 +25,7 @@ class Store(dj.Manual):
     """
 
     definition = """
-    store_name: varchar(32)  # e.g. kccl-raw — never renamed
+    store_name: varchar(32)  # e.g. mlai-raw — never renamed
     ---
     store_kind: enum('s3', 'file')
     -> [nullable] Lab  # lab that runs it; null: central
