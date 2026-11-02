@@ -242,8 +242,9 @@ SCENE_REGISTRY.get("scene") is schema
 
 ## Examples
 
-- [`examples/scene_demo.ipynb`](examples/scene_demo.ipynb): architectural *how-to*, to demonstrate the shared tables,
-the write helpers, and how to extend from a shared layer to lab-specific tables.
+- [`docs/introduction.md`](docs/introduction.md): the ideas behind the shared tables (layers, lab codes and ids, files).
+- [`docs/tutorials/01_getting_started.ipynb`](docs/tutorials/01_getting_started.ipynb): getting started on a local
+  database: a lab's mice, sessions and files on the shared tables, its own tables, and queries across them.
 - [`examples/mlai_mouse_ar`](examples/mlai_mouse_ar): example integration of the shared layer into a previously existing
 pipeline (M-lab Mouse AR pipeline). Start at
   [`mouse_ar_example.py`](examples/mlai_mouse_ar/mouse_ar_example.py).

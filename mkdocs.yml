@@ -77,7 +77,11 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.snippets:
       check_paths: true
   - tables
@@ -90,7 +94,16 @@ copyright: "<span class='scene-footer'><em><b>S</b>imons <b>C</b>ollaboration on
 
 nav:
   - Overview: index.md
+  - Introduction: introduction.md
+  - Tutorials:
+      - tutorials/index.md
+      - Getting started: tutorials/01_getting_started.ipynb
   - API reference
+
+# Notebook helpers, not pages.
+exclude_docs: |
+  tutorials/tutorial_utils/
+  __pycache__/
 
 validation:
   # README links to repo files (examples/, pyproject.toml) that are not doc pages.
