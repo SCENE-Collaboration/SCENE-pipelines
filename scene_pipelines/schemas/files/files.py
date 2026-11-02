@@ -33,7 +33,7 @@ class Store(dj.Manual):
     """
 
 
-@mark_sync_authority(WriteRole.ACQUISITION)
+@mark_sync_authority(SyncAuthority.SHARED)
 @schema
 class File(dj.Manual):
     """The bytes of one file, identified by content: the same bytes are one row everywhere.
@@ -49,7 +49,7 @@ class File(dj.Manual):
     """
 
 
-@mark_write_role(SyncAuthority.SHARED)
+@mark_write_role(WriteRole.ACQUISITION)
 @schema
 class Location(dj.Manual):
     """A copy of a file in a store, at ``object_key(file_sha256)``; it exists while the copy does.
