@@ -56,6 +56,6 @@ SCENE_REGISTRY.activate_all()
 
 Hang lab tables off the shared rows (`-> Session`, `-> Mouse`) rather than giving the same session a second identity.
 A lab with an existing pipeline can link its rows to the shared ones, or migrate them; the
-[MLAI example](https://github.com/SCENE-Collaboration/SCENE-pipelines/tree/dev/examples/mlai_mouse_ar) shows both.
+[MLAI tutorial](../tutorials/02_mlai_mouse_ar.ipynb) shows how the Mathis lab does it.
 
 The [Getting started](../tutorials/01_getting_started.ipynb) tutorial walks through this on a local database.

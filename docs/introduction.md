@@ -102,7 +102,7 @@ A lab registers its own schema on the same registry as the shared ones, for exam
 The shared row is the identity: there is no second session id to keep in sync.
 
 A lab that already has a pipeline can keep it, and link its existing rows to the shared ones,
-or migrate them. The [MLAI example](https://github.com/SCENE-Collaboration/SCENE-pipelines/tree/dev/examples/mlai_mouse_ar)
+or migrate them. The [MLAI example](tutorials/02_mlai_mouse_ar.ipynb)
 does both for a real pipeline.
 
 Importing tables needs no database. `SCENE_REGISTRY.activate_all()` binds every registered schema to the database and
@@ -126,7 +126,7 @@ You rarely need these when you start, but you will see them in the database and 
 ## Where next
 
 - [Getting started](tutorials/01_getting_started.ipynb): the same ideas, in code, on a local database.
-- [MLAI example](https://github.com/SCENE-Collaboration/SCENE-pipelines/tree/dev/examples/mlai_mouse_ar): a real lab on
+- [MLAI example](tutorials/02_mlai_mouse_ar.ipynb): a real lab on
   the shared layer.
 - [Writing data](guides/writing-data.md) and [Schemas and the registry](guides/schemas.md): the helpers and the
   registry in detail.

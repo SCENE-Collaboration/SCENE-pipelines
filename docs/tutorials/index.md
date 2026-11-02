@@ -5,6 +5,7 @@ Notebooks that run against a local database. Each writes only to databases named
 | Notebook | For |
 |---|---|
 | [Getting started](01_getting_started.ipynb) | Anyone new: register a lab's mice, sessions and files on the shared tables, add the lab's own tables, query across them. |
+| [An existing lab: MLAI and MouseAR](02_mlai_mouse_ar.ipynb) | Labs with an existing pipeline: the Mathis lab's real code for its lab layer, automatic ingestion and legacy tables. |
 
 ## Running them
 

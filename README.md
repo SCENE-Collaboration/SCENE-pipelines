@@ -20,8 +20,8 @@ The documentation is built from [`docs/`](docs/) with MkDocs. Good places to sta
   [schemas and the registry](docs/guides/schemas.md), [provenance and sync](docs/guides/provenance.md).
 - [Development](docs/development.md): tests and building the documentation.
 
-The [MLAI example](examples/mlai_mouse_ar) integrates the shared tables into an existing lab pipeline (Mathis lab,
-Mouse AR). Start at [`mouse_ar_example.py`](examples/mlai_mouse_ar/mouse_ar_example.py).
+[An existing lab: MLAI and MouseAR](examples/tutorials/02_mlai_mouse_ar.ipynb) shows a real lab pipeline (Mathis lab,
+Mouse AR) on the shared tables.
 
 ## Quickstart
 
