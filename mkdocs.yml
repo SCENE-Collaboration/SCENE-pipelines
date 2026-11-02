@@ -39,6 +39,9 @@ extra_css:
 
 plugins:
   - search
+  # Tutorial notebooks live in examples/tutorials/; copied in as tutorials/*.ipynb.
+  - gen-files:
+      scripts: [docs/gen_examples.py]
   - autorefs
   # One page per module of the package, under "API reference".
   - api-autonav:
@@ -72,7 +75,6 @@ plugins:
 markdown_extensions:
   - attr_list
   - admonition
-  - github-callouts  # README's > [!NOTE] blocks
   - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
@@ -82,8 +84,6 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
-  - pymdownx.snippets:
-      check_paths: true
   - tables
 
 extra:
@@ -93,20 +93,20 @@ extra:
 copyright: "<span class='scene-footer'><em><b>S</b>imons <b>C</b>ollaboration on <b>E</b>cological <b>N</b><b>E</b>uroscience</em><span class='scene-logo'></span><strong>Simons Foundation</strong></span>"
 
 nav:
-  - Overview: index.md
+  - Home: index.md
   - Introduction: introduction.md
   - Tutorials:
       - tutorials/index.md
       - Getting started: tutorials/01_getting_started.ipynb
+  - Guides:
+      - Setup and configuration: guides/setup.md
+      - Writing data: guides/writing-data.md
+      - Schemas and the registry: guides/schemas.md
+      - Provenance and sync: guides/provenance.md
   - API reference
+  - Development: development.md
 
-# Notebook helpers, not pages.
+# Build script, not a page.
 exclude_docs: |
-  tutorials/tutorial_utils/
+  gen_examples.py
   __pycache__/
-
-validation:
-  # README links to repo files (examples/, pyproject.toml) that are not doc pages.
-  links:
-    not_found: info
-    unrecognized_links: info

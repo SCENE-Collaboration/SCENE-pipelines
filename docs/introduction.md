@@ -121,11 +121,13 @@ You rarely need these when you start, but you will see them in the database and 
 - **Table markers.** Each shared table states which database holds the truth for its rows and who may insert them.
   Database administrators use them to set up permissions and syncing.
 
-The [README](index.md) describes each of these in detail.
+[Provenance and sync](guides/provenance.md) describes each of these in detail.
 
 ## Where next
 
 - [Getting started](tutorials/01_getting_started.ipynb): the same ideas, in code, on a local database.
 - [MLAI example](https://github.com/SCENE-Collaboration/SCENE-pipelines/tree/dev/examples/mlai_mouse_ar): a real lab on
   the shared layer.
+- [Writing data](guides/writing-data.md) and [Schemas and the registry](guides/schemas.md): the helpers and the
+  registry in detail.
 - API reference: every table and helper, from the docstrings.

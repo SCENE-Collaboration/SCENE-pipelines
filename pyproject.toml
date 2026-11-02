@@ -21,10 +21,10 @@ dev = [
     "ruff>=0.15",
 ]
 docs = [
-    "markdown-callouts>=0.4",
     "mkdocs>=1.6,<2",  # 2.0 drops the plugin system mkdocstrings relies on
     "mkdocs-api-autonav>=0.1",
     "mkdocs-autorefs>=1.2",
+    "mkdocs-gen-files>=0.5",
     "mkdocs-jupyter>=0.25",
     "mkdocs-material>=9.5",
     "mkdocstrings[python]>=0.27",
