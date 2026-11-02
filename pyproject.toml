@@ -78,6 +78,5 @@ ignore = [
 convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
-"scene_pipelines/scripts/*.py" = ["E501"]
 "tests/**/*.py" = ["E501", "D"]
 "examples/mlai_mouse_ar/**/*.py" = ["D"]
