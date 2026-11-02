@@ -32,12 +32,31 @@ make up_all
 make client_bash
 ```
 
-The host port for MySQL is `MYSQL_PUBLISH_PORT` in `.env` (default `3306`).
+The host port for MySQL is `MYSQL_PUBLISH_PORT` in `.env` (default `3306`). The `DJ_*` connection variables in
+`.env` must match it and `MYSQL_ROOT_PASSWORD`; see [Connecting](#connecting).
 
 !!! warning
     MySQL applies `MYSQL_ROOT_PASSWORD` only when the data directory (`DATABASE_MOUNT`) is first initialized.
     If you change it in `.env` afterwards, the `db` container never becomes healthy: change the password inside MySQL,
     or remove the data directory to start from an empty database.
+
+## Connecting
+
+SCENE pipelines has no connection settings of its own: connect the way DataJoint does. DataJoint reads, in order of
+precedence:
+
+- environment variables: `DJ_HOST`, `DJ_PORT`, `DJ_USER`, `DJ_PASS`, `DJ_USE_TLS`;
+- a `.secrets/` folder in the project (or `/run/secrets/datajoint/`), for the password;
+- `datajoint.json`, searched upward from the working directory to the repository root, e.g.:
+
+```json
+{
+  "database": {"host": "db.mylab.org", "port": 3306, "user": "mlai_acquisition"}
+}
+```
+
+For the local Docker database, `.env.example` already holds the `DJ_*` variables; load `.env` into your shell
+(`set -a && . ./.env && set +a`) or your IDE before connecting.
 
 ## Configuration
 
@@ -51,7 +70,7 @@ SCENE pipelines reads its settings from environment variables ([`load_settings`]
 | `SCENE_DEPLOYMENT_LABEL` | Optional human label, stored on the `Deployment` row at the first write |
 | `SCENE_LAB_ID` | Optional lab of this deployment; the default `lab` for `subject_key` / `session_key` (not for writes) |
 
-The DataJoint connection itself (host, user, password) is configured as usual for DataJoint.
+Set them next to the DataJoint connection, in the same environment or `.env`.
 
 ### Choosing a deployment id
 
