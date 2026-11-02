@@ -5,7 +5,10 @@ from pathlib import Path
 
 import datajoint as dj
 
-REPO_ROOT = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").is_file())
+# None outside a clone of the repository (e.g. on Colab): then there is no .env to read.
+REPO_ROOT = next(
+    (p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").is_file()), None
+)
 
 
 def connect(prefix: str = "tutorial_") -> None:
@@ -18,8 +21,8 @@ def connect(prefix: str = "tutorial_") -> None:
         prefix: Schema prefix of the tutorial databases; must end with ``_``.
     """
     prefix = os.environ.get("DJ_SCHEMA_PREFIX", prefix)  # read before .env is loaded
-    env_file = REPO_ROOT / ".env"
-    for line in env_file.read_text().splitlines() if env_file.is_file() else []:
+    env_file = REPO_ROOT / ".env" if REPO_ROOT else None
+    for line in env_file.read_text().splitlines() if env_file and env_file.is_file() else []:
         name, sep, value = line.partition("=")
         if sep and not name.strip().startswith("#"):
             os.environ.setdefault(name.strip(), value.strip().strip("'\""))
