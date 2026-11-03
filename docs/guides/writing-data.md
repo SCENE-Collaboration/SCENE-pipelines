@@ -13,6 +13,9 @@ catalogs shared across the collaboration. An administrator creates them with the
 - [`ensure_lab`][scene_pipelines.ingestion.scene.admin.lab.ensure_lab]: insert a lab row, return its key
 - [`ensure_project`][scene_pipelines.ingestion.scene.admin.project.ensure_project]: insert a project row, return its key
 
+Catalog keys (`lab_id`, `project_name`, and likewise `store_name` and `strain_name`) are short, stable tokens: chosen
+once and never renamed, since every other table refers to them.
+
 [`Experimenter`][scene_pipelines.schemas.scene.session.Experimenter] is a plain lookup of pseudonymous codes per lab;
 insert into it directly.
 

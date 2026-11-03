@@ -59,12 +59,15 @@ Every subject and session has two names:
 Codes are shared with the whole consortium, so they must be **pseudonymous**: never a real name, initials, a birth date
 or anything else that identifies a person. The helpers accept only letters, digits, `.`, `_` and `-`.
 
+Details: [Writing data](guides/writing-data.md#subjects-and-sessions).
+
 ## Writing data
 
 Shared tables are written through the helpers in `scene_pipelines.ingestion`, not with `insert1`:
 
 | To add | Use |
 |---|---|
+| a background strain | `ensure_strain` |
 | a mouse | `register_mouse` |
 | another kind of subject | `register_subject` |
 | a session | `register_session` |
@@ -80,9 +83,10 @@ Some special ingestion helpers are created for admin-level registrations:
 |---|---|
 | a lab, a project | `ensure_lab`, `ensure_project` |
 | a file store | `ensure_store` |
-| a background strain | `ensure_strain` |
 
- Labs, projects and stores are catalogs for the whole consortium. They are added once, by an administrator from the lab. These are short, stable tokens chosen once and never renamed. Normally a lab, file-storage, and other catalog values should already be registered before using a project pipeline.
+ Labs, projects and stores are catalogs for the whole consortium. They are added once, by an administrator from the lab. Normally a lab, file-storage, and other catalog values should already be registered before using a project pipeline.
+
+Details: [Writing data](guides/writing-data.md).
 
 ## Files
 
@@ -111,7 +115,7 @@ A lab that already has a pipeline can keep it, and link its existing rows to the
 or migrate them. The [MLAI example](tutorials/02_mlai_mouse_ar.ipynb)
 does both for a real pipeline.
 
-Importing tables needs no database. `SCENE_REGISTRY.activate_all()` binds every registered schema to the database and creates the missing tables.
+Details: [Schemas and the registry](guides/schemas.md).
 
 ## Advanced
 
