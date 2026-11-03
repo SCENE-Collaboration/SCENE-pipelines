@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+from scene_pipelines.schemas.files.row_meta import LocationRowMeta, StoreRowMeta
 from scene_pipelines.schemas.mouse.row_meta import MouseRowMeta, StrainRowMeta
 from scene_pipelines.schemas.provenance.row_meta import (
     LabRowMeta,
@@ -42,6 +43,8 @@ def test_row_meta_subclasses_match_tracked_masters() -> None:
         SessionRowMeta,
         MouseRowMeta,
         StrainRowMeta,
+        StoreRowMeta,
+        LocationRowMeta,
     }
     assert LabRowMeta.tracked_table.__name__ == "Lab"
     assert SubjectRowMeta.tracked_table.__name__ == "Subject"
@@ -49,6 +52,8 @@ def test_row_meta_subclasses_match_tracked_masters() -> None:
     assert SessionRowMeta.tracked_table.__name__ == "Session"
     assert MouseRowMeta.tracked_table.__name__ == "Mouse"
     assert StrainRowMeta.tracked_table.__name__ == "Strain"
+    assert StoreRowMeta.tracked_table.__name__ == "Store"
+    assert LocationRowMeta.tracked_table.__name__ == "Location"
 
 
 def test_definition_is_built_from_tracked_table_and_shared_attrs() -> None:

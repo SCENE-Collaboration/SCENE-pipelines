@@ -14,6 +14,12 @@
 
 ::: scene_pipelines.ingestion.mouse.strain
 
+## Files
+
+::: scene_pipelines.ingestion.files.files
+
+::: scene_pipelines.ingestion.files.admin
+
 ## Provenance
 
 ::: scene_pipelines.ingestion.provenance.row_meta
