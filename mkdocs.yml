@@ -71,6 +71,7 @@ plugins:
   - mkdocs-jupyter:
       include: ["*.ipynb"]
       execute: false
+      ignore_h1_titles: true  # use the nav titles below, not the notebook's first heading
 
 markdown_extensions:
   - attr_list
@@ -98,7 +99,7 @@ nav:
   - Tutorials:
       - tutorials/index.md
       - Getting started: tutorials/01_getting_started.ipynb
-      - "An existing lab: MLAI and MouseAR": tutorials/02_mlai_mouse_ar.ipynb
+      - Migrate existing pipeline: tutorials/02_mlai_mouse_ar.ipynb
   - Guides:
       - Setup and configuration: guides/setup.md
       - Writing data: guides/writing-data.md
