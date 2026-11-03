@@ -1,0 +1,54 @@
+/* SCENE theme for MkDocs Material, in the colours of the SCENE logo. */
+
+:root {
+  --md-primary-fg-color: #125069; /* petrol blue */
+  --md-primary-fg-color--light: #12638e; /* ocean blue */
+  --md-primary-fg-color--dark: #0d3a4c;
+  --md-accent-fg-color: #41cfdb; /* cyan */
+  --md-typeset-a-color: #12638e;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #1f2d36; /* ink */
+  --md-typeset-a-color: #41cfdb;
+}
+
+/* Brand stripe above the header, in the logo's colours. */
+.md-header::before {
+  content: "";
+  display: block;
+  height: 4px;
+  background: linear-gradient(90deg, #41cfdb, #31c5a1, #80c848, #edb71f, #e98724, #d76c26);
+}
+
+.md-typeset h2 {
+  padding-bottom: 0.25em;
+  border-bottom: 2px solid var(--md-accent-fg-color);
+}
+
+.md-copyright {
+  width: 100%;
+  text-align: center;
+}
+
+/* Footer line: the name with its initials in stripe order (golden yellow skipped), as in the SCENE Jupyter Book,
+   the logo, then the funder. Markup: `copyright` in mkdocs.yml. */
+.scene-logo {
+  display: inline-block;
+  width: 1.4em;
+  height: 1.4em;
+  margin: 0 0.6em;
+  vertical-align: middle;
+  /* A background image, not an <img>: its URL is relative to this file, so it holds on every page. */
+  background: url("../images/scene-logo.png") center / contain no-repeat;
+}
+
+.scene-footer strong {
+  color: #fff;
+}
+
+.scene-footer em b:nth-of-type(1) { color: #41cfdb; }
+.scene-footer em b:nth-of-type(2) { color: #31c5a1; }
+.scene-footer em b:nth-of-type(3) { color: #80c848; }
+.scene-footer em b:nth-of-type(4) { color: #e98724; }
+.scene-footer em b:nth-of-type(5) { color: #d76c26; }

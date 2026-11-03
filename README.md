@@ -310,8 +310,8 @@ make docs          # live preview at http://127.0.0.1:8000
 make docs-build    # build into site/
 ```
 
-CI builds the site on every push to `dev` and attaches it to the run as the
-`docs-site` artifact.
+CI (`.github/workflows/docs.yml`) builds the site on every pull request and publishes it to
+GitHub Pages on every push to `main`.
 
 ## Acknowledgments
 
