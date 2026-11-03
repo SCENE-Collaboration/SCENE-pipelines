@@ -15,7 +15,7 @@ from scene_pipelines.core import SCENE_REGISTRY, activate_schema
 schema = SCENE_REGISTRY.make_schema("scene")  # unbound unless AUTO_ACTIVATE
 # @schema class Lab ...
 SCENE_REGISTRY.activate("scene")  # uses create_tables stored at make_schema
-SCENE_REGISTRY.activate_all()     # every registered schema still unbound, dependencies first
+SCENE_REGISTRY.activate_all()  # every registered schema still unbound, dependencies first
 
 # Or bind any dj.Schema without the registry:
 activate_schema(schema, "scene")
