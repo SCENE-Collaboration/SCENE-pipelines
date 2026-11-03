@@ -52,3 +52,9 @@
 .scene-footer em b:nth-of-type(3) { color: #80c848; }
 .scene-footer em b:nth-of-type(4) { color: #e98724; }
 .scene-footer em b:nth-of-type(5) { color: #d76c26; }
+
+/* Sidebar title and section labels (Guides, API reference) in the text colour, like Tutorials. */
+.md-nav--primary > .md-nav__title,
+.md-nav--primary .md-nav__item--section > label.md-nav__link {
+  color: var(--md-default-fg-color);
+}
