@@ -5,37 +5,47 @@ This page explains the ideas behind them. For code, see the [Getting started](tu
 
 ## Why shared tables
 
-Labs in SCENE collect different data (mice in augmented reality, bats, human participants, …) and each lab has its own
-pipeline for it. To combine or compare that data, every lab has to answer a few basic questions the same way:
-*which lab, which subject, which session, which project, which file?*
+In the SCENE collaboration, our research data and analyses span many species, recording modalities and labs. Yet, without coordination each lab risks building its own database in its own format. Our multidisciplinary breadth only pays off if our data can meet and our analyses share a common structure.
 
-SCENE pipelines provides the tables for those answers. A lab keeps its own tables and analyses, and attaches them to
-the shared rows.
+To combine or compare our data, every lab has to answer a few basic questions the same way:
+*which lab, which subject, which session, which project, which file?* The SCENE pipelines package provides the tables for those answers. It allows each lab to ingest its acquired data in a common format and synchronize it to a central SQL database on the Simons cluster. The goal is to ensure reproducibility, and a smoother way to share data and run an analysis written in one lab on another lab's data.
+
 
 ## Layers
 
-The tables are organised in layers, from shared to lab-specific:
+The tables are organised in different layers, with their own [schemas](https://docs.datajoint.com/explanation/schema-as-workflow-specification/). From shared to lab-specific, the schema relations are  organized as follows:
 
 ```mermaid
 flowchart BT
-    pipeline["<b>Analysis pipeline</b><br/>pose estimation, behaviour, …"]
-    lab["<b>Lab schema</b><br/>e.g. demo: Housing, SessionNotes"]
-    domain["<b>Shared domain layers</b><br/>mouse: Strain, Mouse<br/>files: Store, File, Location"]
-    scene["<b>scene</b><br/>Lab, Project, Subject, Session, Experimenter"]
-    pipeline --> lab --> domain --> scene
+
+    subgraph lab["<b>Lab (optional)</b>"]
+      labschema["<b>lab-schema</b><br/>e.g. demo: Housing, SessionNotes"]
+    end
+    subgraph project["<b>Project</b>"]
+      projectschema["<b>project-schema</b><br/>experimental concepts, analysis, …"]
+    end
+    subgraph core["<b>SCENE-Pipelines shared</b>"]
+      scene["<b>scene</b><br/>Lab, Project, Subject, Session, Experimenter"]
+    end
+    subgraph shared["<b>SCENE-Pipelines optional</b>"]
+      mouse["<b>mouse</b><br/>Strain, Mouse"]
+      file["<b>file</b><br/> File, Store, Location"]
+      deeplabcut["<b>dlc-scene</b><br/> DlcProject, DlcFile, DlcFileRevision"]
+    end
+    shared --> core
+    lab -.-> shared
+    lab --> core
+    project -.-> lab
+    project -.-> shared
+    project --> core
 ```
 
 | Layer | Defined by | Holds |
 |---|---|---|
-| `scene` | SCENE pipelines | what every lab has: lab, project, subject, session, experimenter |
-| `mouse`, `files`, … | SCENE pipelines | what every lab of one kind has: a mouse's sex and strain, a file's content |
-| lab schema | the lab | everything else the lab records: cages, rigs, score sheets, notes |
-| analysis pipeline | the lab or a tool | results, linked to the sessions and files they come from |
-
-An arrow means "refers to": a lab table points at a shared session, never the other way around.
-
-A table belongs in a shared layer only when every lab that uses the layer needs it, in the same form.
-When in doubt, keep it in the lab schema; it can move to a shared layer later.
+| SCENE shared: `scene` | SCENE pipelines | what every lab and project has: lab, project, subject, session, experimenter |
+| SCENE optional: `mouse`, `file`, `dlc-scene`, … | SCENE pipelines | what labs of one kind or with one tool share: a mouse's sex and strain, a file's content, DeepLabCut projects and results |
+| lab schema (optional) | the lab | what the lab records across its projects: cages, rigs, score sheets, notes |
+| project schema | the project | the project's own experimental concepts and analyses, e.g. MouseAR's datasets and trials |
 
 ## Lab codes and ids
 
@@ -46,15 +56,8 @@ Every subject and session has two names:
 - an **id**, a random UUID minted by SCENE pipelines the first time the code is registered.
   It is unique everywhere and is the primary key that other tables refer to.
 
-Registering the same code again returns the same id, so the lab keeps working with its own codes, and
-`subject_key` / `session_key` find a row by its code.
-
 Codes are shared with the whole consortium, so they must be **pseudonymous**: never a real name, initials, a birth date
-or anything else that identifies a person. The helpers accept only letters, digits, `.`, `_` and `-`, which catches
-most mistakes but not all; choosing a pseudonym is the lab's responsibility.
-
-Catalog names (a `lab_id` such as `mlai`, a project name, a strain name) are short, stable tokens: chosen once and never
-renamed.
+or anything else that identifies a person. The helpers accept only letters, digits, `.`, `_` and `-`.
 
 ## Writing data
 
@@ -62,21 +65,24 @@ Shared tables are written through the helpers in `scene_pipelines.ingestion`, no
 
 | To add | Use |
 |---|---|
-| a lab, a project | `ensure_lab`, `ensure_project` |
-| a background strain | `ensure_strain` |
 | a mouse | `register_mouse` |
 | another kind of subject | `register_subject` |
 | a session | `register_session` |
-| a file | `register_file` (store: `ensure_store`) |
+| a file | `register_file` |
 
 The helpers check the codes, mint the ids, and write the rows that belong together in one transaction.
-They are also safe to run again: the same input returns the same key, and the same code with different content raises
-an error instead of changing the stored row. An ingestion script can therefore run over all its data every time.
+They are also safe to run again, as long as the content was not changed: the same input returns the same key. The same code with different content raises an error.
 
-Labs, projects and stores are catalogs for the whole consortium. They are added once, by an administrator; a lab usually
-finds its rows already there.
+### Catalog (admin)
+Some special ingestion helpers are created for admin-level registrations:
 
-The lab's own tables are written with plain DataJoint.
+| To add | Use |
+|---|---|
+| a lab, a project | `ensure_lab`, `ensure_project` |
+| a file store | `ensure_store` |
+| a background strain | `ensure_strain` |
+
+ Labs, projects and stores are catalogs for the whole consortium. They are added once, by an administrator from the lab. These are short, stable tokens chosen once and never renamed. Normally a lab, file-storage, and other catalog values should already be registered before using a project pipeline.
 
 ## Files
 
@@ -105,12 +111,11 @@ A lab that already has a pipeline can keep it, and link its existing rows to the
 or migrate them. The [MLAI example](tutorials/02_mlai_mouse_ar.ipynb)
 does both for a real pipeline.
 
-Importing tables needs no database. `SCENE_REGISTRY.activate_all()` binds every registered schema to the database and
-creates the missing tables.
+Importing tables needs no database. `SCENE_REGISTRY.activate_all()` binds every registered schema to the database and creates the missing tables.
 
 ## Advanced
 
-You rarely need these when you start, but you will see them in the database and the API reference.
+Some functionalities are intended for developers and databases maintainers, but you will see them in the database and the API reference:
 
 - **Deployments.** Every database has a deployment id, set once with `SCENE_DEPLOYMENT_ID`, for example `mlai-prod` for
   a lab's production database.
