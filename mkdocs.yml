@@ -39,6 +39,9 @@ extra_css:
 
 plugins:
   - search
+  # Tutorial notebooks live in examples/tutorials/; copied in as tutorials/*.ipynb.
+  - gen-files:
+      scripts: [docs/gen_examples.py]
   - autorefs
   # One page per module of the package, under "API reference".
   - api-autonav:
@@ -68,18 +71,20 @@ plugins:
   - mkdocs-jupyter:
       include: ["*.ipynb"]
       execute: false
+      ignore_h1_titles: true  # use the nav titles below, not the notebook's first heading
 
 markdown_extensions:
   - attr_list
   - admonition
-  - github-callouts  # README's > [!NOTE] blocks
   - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
-  - pymdownx.superfences
-  - pymdownx.snippets:
-      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - tables
 
 extra:
@@ -89,11 +94,22 @@ extra:
 copyright: "<span class='scene-footer'><em><b>S</b>imons <b>C</b>ollaboration on <b>E</b>cological <b>N</b><b>E</b>uroscience</em><span class='scene-logo'></span><strong>Simons Foundation</strong></span>"
 
 nav:
-  - Overview: index.md
+  - Home: index.md
+  - Introduction: introduction.md
+  - Tutorials:
+      - Instructions: tutorials/setup.md
+      - Notebooks:
+          - Getting started: tutorials/01_getting_started.ipynb
+          - Migrate existing pipeline: tutorials/02_mlai_mouse_ar.ipynb
+  - Guides:
+      - Setup and configuration: guides/setup.md
+      - Writing data: guides/writing-data.md
+      - Schemas and the registry: guides/schemas.md
+      - Provenance and sync: guides/provenance.md
   - API reference
+  - Development: development.md
 
-validation:
-  # README links to repo files (examples/, pyproject.toml) that are not doc pages.
-  links:
-    not_found: info
-    unrecognized_links: info
+# Build script, not a page.
+exclude_docs: |
+  gen_examples.py
+  __pycache__/

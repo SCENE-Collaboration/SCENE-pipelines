@@ -12,3 +12,4 @@ site/
 .env
 .dbdata/
 datajoint.json
+.cache
