@@ -20,7 +20,8 @@ def connect(prefix: str = "tutorial_") -> None:
     Args:
         prefix: Schema prefix of the tutorial databases; must end with ``_``.
     """
-    prefix = os.environ.get("DJ_SCHEMA_PREFIX", prefix)  # read before .env is loaded
+    if not prefix.startswith("tutorial_") or not prefix.endswith("_"):
+        raise ValueError("tutorial schema prefix must start with 'tutorial_' and end with '_'")
     env_file = REPO_ROOT / ".env" if REPO_ROOT else None
     for line in env_file.read_text().splitlines() if env_file and env_file.is_file() else []:
         name, sep, value = line.partition("=")
