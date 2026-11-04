@@ -8,7 +8,7 @@ This page explains the ideas behind them. For code, see the [Getting started](tu
 In the SCENE collaboration, our research data and analyses span many species, recording modalities and labs. Yet, without coordination each lab risks building its own database in its own format. Our multidisciplinary breadth only pays off if our data can meet and our analyses share a common structure.
 
 To combine or compare our data, every lab has to answer a few basic questions the same way:
-*which lab, which subject, which session, which project, which file?* The SCENE pipelines package provides the tables for those answers. It allows each lab to ingest its acquired data in a common format and synchronize it to a central SQL database on the Simons cluster. The goal is to ensure reproducibility, and a smoother way to share data and run an analysis written in one lab on another lab's data.
+*which lab, which subject, which session, which project?* The SCENE pipelines package provides the tables for those answers. It allows each lab to ingest its acquired data in a common format and synchronize it to a central SQL database on the Simons cluster. The goal is to ensure reproducibility, and a smoother way to share data and run an analysis written in one lab on another lab's data.
 
 
 ## Layers
@@ -29,7 +29,6 @@ flowchart BT
     end
     subgraph shared["<b>SCENE-Pipelines optional</b>"]
       mouse["<b>mouse</b><br/>Strain, Mouse"]
-      file["<b>file</b><br/> File, Store, Location"]
       deeplabcut["<b>dlc-scene</b><br/> DlcProject, DlcFile, DlcFileRevision"]
     end
     shared --> core
@@ -43,7 +42,7 @@ flowchart BT
 | Layer | Defined by | Holds |
 |---|---|---|
 | SCENE shared: `scene` | SCENE pipelines | what every lab and project has: lab, project, subject, session, experimenter |
-| SCENE optional: `mouse`, `file`, `dlc-scene`, … | SCENE pipelines | what labs of one kind or with one tool share: a mouse's sex and strain, a file's content, DeepLabCut projects and results |
+| SCENE optional: `mouse`, `dlc-scene`, … | SCENE pipelines | what labs of one kind or with one tool share: a mouse's sex and strain, DeepLabCut projects and results |
 | lab schema (optional) | the lab | what the lab records across its projects: cages, rigs, score sheets, notes |
 | project schema | the project | the project's own experimental concepts and analyses, e.g. MouseAR's datasets and trials |
 
@@ -71,7 +70,6 @@ Shared tables are written through the helpers in `scene_pipelines.ingestion`, no
 | a mouse | `register_mouse` |
 | another kind of subject | `register_subject` |
 | a session | `register_session` |
-| a file | `register_file` |
 
 The helpers check the codes, mint the ids, and write the rows that belong together in one transaction.
 They are also safe to run again, as long as the content was not changed: the same input returns the same key. The same code with different content raises an error.
@@ -82,28 +80,10 @@ Some special ingestion helpers are created for admin-level registrations:
 | To add | Use |
 |---|---|
 | a lab, a project | `ensure_lab`, `ensure_project` |
-| a file store | `ensure_store` |
 
- Labs, projects and stores are catalogs for the whole consortium. They are added once, by an administrator from the lab. Normally a lab, file-storage, and other catalog values should already be registered before using a project pipeline.
+ Labs and projects are catalogs for the whole consortium. They are added once, by an administrator from the lab. Normally a lab and other catalog values should already be registered before using a project pipeline.
 
 Details: [Writing data](guides/writing-data.md).
-
-## Files
-
-A file is identified by its **content**, the SHA-256 hash of its bytes, not by its name or path.
-The same bytes are the same row in every database.
-
-- A **store** is a place where file bytes are kept: a lab server, an S3 bucket. Each machine finds a store by its name in
-  `dj.config["stores"]`; addresses and credentials never go into the database.
-- A **file** is the bytes, by hash and size. It has no name and no meaning of its own.
-- A **location** records that a store holds a copy of a file.
-
-Inside a store, a file is kept under a key made from its hash, so a store listing reveals nothing about participants.
-The meaning of a file comes from the lab's tables: "the top camera video of this session" is a lab table that refers to
-a session and a file.
-
-`register_file` copies a file into a disk store and records it. Copies into S3 are made by a transfer job, which records
-them with `record_stored`.
 
 ## The lab's own tables
 
