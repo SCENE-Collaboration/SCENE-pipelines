@@ -1,4 +1,4 @@
-"""SCENE shared mouse tables (Strain, Mouse).
+"""SCENE shared mouse tables (Strain, Allele, Mouse).
 
 Species layer on top of ``scene_pipelines.schemas.scene``: what every mouse lab
 records about a mouse. Lab-specific extras live in the lab's own schema and

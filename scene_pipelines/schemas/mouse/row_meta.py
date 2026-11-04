@@ -5,7 +5,7 @@ have to activate it.
 """
 
 from scene_pipelines.schemas.mouse._schema import schema
-from scene_pipelines.schemas.mouse.mouse import Mouse, Strain
+from scene_pipelines.schemas.mouse.mouse import Allele, Mouse, Strain
 from scene_pipelines.schemas.provenance.deployment import Deployment  # noqa: F401
 from scene_pipelines.schemas.provenance.row_meta import RowMetaBase
 
@@ -23,4 +23,12 @@ class StrainRowMeta(RowMetaBase):
     """Provenance for one ``Strain`` row."""
 
     tracked_table = Strain
+    definition = RowMetaBase.build_definition(tracked_table)
+
+
+@schema
+class AlleleRowMeta(RowMetaBase):
+    """Provenance for one ``Allele`` row."""
+
+    tracked_table = Allele
     definition = RowMetaBase.build_definition(tracked_table)

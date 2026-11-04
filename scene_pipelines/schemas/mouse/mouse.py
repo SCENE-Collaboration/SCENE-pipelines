@@ -1,4 +1,4 @@
-"""SCENE-shared mouse identity extension (Strain, Mouse)."""
+"""SCENE-shared mouse identity extension (Strain, Allele, Mouse)."""
 
 import datajoint as dj
 
@@ -18,7 +18,7 @@ class Strain(dj.Manual):
     """Shared vocabulary of background strains in official nomenclature (MGI guidelines).
 
     Any lab adds one with ``ensure_strain``. A background strain (e.g. C57BL/6J),
-    Not transgenic line or genotype: those go in ``Mouse.genotype``.
+    Not transgenic line or genotype: those go in ``Allele`` and ``Mouse.Genotype``.
     """
 
     definition = """
@@ -26,6 +26,23 @@ class Strain(dj.Manual):
     ---
     rrid=null: varchar(64)  # e.g. RRID:IMSR_JAX:000664
     unique index (rrid)
+    """
+
+
+@mark_sync_authority(SyncAuthority.SHARED)
+@schema
+class Allele(dj.Manual):
+    """Shared vocabulary of alleles and transgenes in official nomenclature (MGI guidelines).
+
+    Any lab adds one with ``ensure_allele``. A mouse's genotype is the set of its
+    alleles, each with a zygosity: ``Mouse.Genotype``.
+    """
+
+    definition = """
+    allele_name: varchar(128)  # MGI allele or transgene symbol — never renamed
+    ---
+    mgi_id=null: varchar(32)  # MGI accession ID, MGI:<digits>
+    unique index (mgi_id)
     """
 
 
@@ -59,5 +76,15 @@ class Mouse(dj.Manual):
     sex: enum('M', 'F', 'U')  # male, female, unknown
     date_of_birth=null: date
     -> [nullable] Strain
-    genotype=null: varchar(255)  # free text, e.g. Cux2-CreERT2/wt; null = not recorded
+    genotype=null: varchar(255)  # free-text note, e.g. Cux2-CreERT2/wt; query Genotype instead
     """
+
+    class Genotype(dj.Part):
+        """The mouse's alleles, each with its zygosity; written by ``register_mouse``."""
+
+        definition = """
+        -> master
+        -> Allele
+        ---
+        zygosity: enum('hom', 'het', 'hemi', 'unknown')
+        """

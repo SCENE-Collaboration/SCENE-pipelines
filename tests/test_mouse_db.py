@@ -180,3 +180,68 @@ def test_mouse_requires_an_existing_subject(dj_connection):
 
     with pytest.raises(dj.errors.IntegrityError):
         Mouse.insert1({"subject_id": "c" * 32, "sex": "M"})
+
+
+def test_ensure_allele_keeps_one_spelling_and_one_row_per_mgi_id(dj_connection, monkeypatch):
+    from scene_pipelines.ingestion.mouse import ensure_allele
+    from scene_pipelines.schemas.mouse.mouse import Allele
+    from scene_pipelines.schemas.mouse.row_meta import AlleleRowMeta
+
+    monkeypatch.setenv("SCENE_DEPLOYMENT_ID", "test-local")
+    monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", "test")
+
+    key = ensure_allele({"allele_name": "Test-Allele1", "mgi_id": "MGI:9000001"})
+    assert key == {"allele_name": "Test-Allele1"}
+    assert len(AlleleRowMeta & key) == 1
+    assert ensure_allele({"allele_name": "Test-Allele1", "mgi_id": "MGI:9000001"}) == key
+    with pytest.raises(ValueError, match="already stored as 'Test-Allele1'"):
+        ensure_allele({"allele_name": "test-allele1", "mgi_id": "MGI:9000001"})
+    with pytest.raises(ValueError, match="already registered as allele 'Test-Allele1'"):
+        ensure_allele({"allele_name": "Test-Allele1b", "mgi_id": "MGI:9000001"})
+    for bad in ("9000001", "MGI: 9000001", "mgi:9000001", ""):
+        with pytest.raises(ValueError, match="mgi_id"):
+            ensure_allele({"allele_name": "bad-mgi", "mgi_id": bad})
+    with pytest.raises(ValueError, match="allele_name"):
+        ensure_allele({"allele_name": " padded"})
+    assert not (Allele & {"allele_name": "bad-mgi"})
+
+
+def test_register_mouse_writes_alleles(dj_connection, monkeypatch):
+    from scene_pipelines.ingestion.mouse import ensure_allele, register_mouse
+    from scene_pipelines.ingestion.provenance import DuplicatePolicy
+    from scene_pipelines.ingestion.scene.admin import ensure_lab
+    from scene_pipelines.schemas.mouse.mouse import Mouse
+    from scene_pipelines.schemas.scene.subject import Subject
+
+    monkeypatch.setenv("SCENE_DEPLOYMENT_ID", "test-local")
+    monkeypatch.setenv("SCENE_DEPLOYMENT_LABEL", "test")
+    lab_key = ensure_lab(
+        {"lab_id": "allelelab", "lab_name": "Allele Lab"}, if_exists=DuplicatePolicy.VERIFY
+    )
+    cre = ensure_allele({"allele_name": "Test-Cre"})["allele_name"]
+    reporter = ensure_allele({"allele_name": "Test-Reporter"})["allele_name"]
+
+    alleles = {cre: "het", reporter: "het"}
+    key = register_mouse("allele-m1", "F", lab=lab_key, alleles=alleles)
+    assert dict(zip(*(Mouse.Genotype & key).fetch("allele_name", "zygosity"))) == alleles
+    # Same alleles in any order or spelling: the same mouse. Other alleles: changed content.
+    reordered = {"test-reporter": "het", "test-cre": "het"}
+    assert register_mouse("allele-m1", "F", lab=lab_key, alleles=reordered) == key
+    with pytest.raises(ValueError, match="different content hash"):
+        register_mouse("allele-m1", "F", lab=lab_key, alleles={cre: "hom"})
+    with pytest.warns(UserWarning, match="content hash changed"):
+        register_mouse(
+            "allele-m1", "F", lab=lab_key, alleles={cre: "hom"}, if_exists=DuplicatePolicy.OVERWRITE
+        )
+    assert dict(zip(*(Mouse.Genotype & key).fetch("allele_name", "zygosity"))) == {cre: "hom"}
+
+    # "Every mouse carrying the Cre allele" is a plain restriction.
+    assert key in (Mouse & (Mouse.Genotype & {"allele_name": cre})).keys()
+
+    with pytest.raises(ValueError, match="unknown allele"):
+        register_mouse("allele-m2", "F", lab=lab_key, alleles={"Not-Registered": "het"})
+    with pytest.raises(ValueError, match="zygosity"):
+        register_mouse("allele-m2", "F", lab=lab_key, alleles={cre: "heterozygous"})
+    with pytest.raises(ValueError, match="more than once"):
+        register_mouse("allele-m2", "F", lab=lab_key, alleles={cre: "het", "test-cre": "het"})
+    assert not (Subject & {**lab_key, "subject_code": "allele-m2"})  # nothing written
