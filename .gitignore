@@ -1,6 +1,15 @@
 __pycache__/
-base_schemas.egg-info/
+*.py[cod]
+scene_pipelines.egg-info/
 dist/
+site/
 .venv
 .python-version
 .metadata_never_index
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.env
+.dbdata/
+datajoint.json
+.cache
