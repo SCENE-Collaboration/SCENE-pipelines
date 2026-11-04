@@ -2,9 +2,8 @@
 
 import hashlib
 
-from scene_pipelines.core import load_settings
-from scene_pipelines.ingestion.files import hash_file, object_key
-from scene_pipelines.ingestion.files.files import _copy_into
+import pytest
+from scene_pipelines.ingestion.files import hash_file, object_key, record_stored
 
 
 def test_hash_file_reads_in_chunks(tmp_path):
@@ -19,21 +18,12 @@ def test_object_key_is_derived_from_content():
     assert object_key(sha) == f"sha256/ab/{sha}"
 
 
-def test_copy_into_places_the_bytes_at_their_key_once(tmp_path):
-    source = tmp_path / "P012 video.mp4"
-    source.write_bytes(b"frames")
-    root = tmp_path / "store"
-    sha, size = _copy_into(source, root)
-
-    assert (sha, size) == (hashlib.sha256(b"frames").hexdigest(), 6)
-    assert (root / object_key(sha)).read_bytes() == b"frames"
-    assert _copy_into(source, root) == (sha, size)
-    assert [p.name for p in root.rglob("*") if p.is_file()] == [sha]
-    assert source.exists()
+@pytest.mark.parametrize("sha", ["abc", "g" * 64, "a" * 65])
+def test_record_stored_rejects_malformed_hashes(sha):
+    with pytest.raises(ValueError, match="SHA-256"):
+        record_stored(sha, 1, store="any")
 
 
-def test_store_setting(monkeypatch):
-    monkeypatch.delenv("SCENE_STORE", raising=False)
-    assert load_settings().store is None
-    monkeypatch.setenv("SCENE_STORE", " mlai-raw ")
-    assert load_settings().store == "mlai-raw"
+def test_record_stored_rejects_negative_sizes():
+    with pytest.raises(ValueError, match="or size"):
+        record_stored("a" * 64, -1, store="any")

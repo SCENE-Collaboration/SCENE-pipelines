@@ -22,6 +22,7 @@ class Store(dj.Manual):
 
     ``store_name`` is also the name under ``dj.config["stores"]`` on each machine
     that uses it; connection details and credentials stay there, never in the database.
+    The file helpers check that ``store_kind`` matches the configured ``protocol``.
     """
 
     definition = """
@@ -40,6 +41,11 @@ class File(dj.Manual):
 
     Immutable and not stamped as RowMeta. Copies are in ``Location``; The names and roles (e.g.
     EEG recording file, DLC config file) are defined in the downstream table referencing ``File``.
+
+    For raw data acquired once and shared across labs. Derived, recomputable
+    results use DataJoint's own object storage instead (``<blob@store>``,
+    ``<attach@store>``, ``<object@store>``), which DataJoint manages and
+    garbage-collects itself.
     """
 
     definition = """
@@ -49,13 +55,18 @@ class File(dj.Manual):
     """
 
 
-@mark_write_role(WriteRole.ACQUISITION)
 @schema
 class Location(dj.Manual):
     """A copy of a file in a store, at ``object_key(file_sha256)``; it exists while the copy does.
 
-    Every ``File`` has at least one ``Location``. Each store has one writer (the lab's
-    ingestion, or the transfer job into it), so syncing a store's rows never conflicts.
+    Each store has one writer: the lab's ingestion for a lab store, or central for a
+    central store (``Store.lab_id`` null). That writer is the row's origin, so
+    syncing a store's rows never conflicts. No write-role marker, so central can
+    record copies in its own stores.
+
+    The file helpers record a ``File`` together with its first ``Location`` and
+    refuse to remove the last one. That is a convention, not a database
+    constraint: a site also holds ``File`` rows whose copies are recorded elsewhere.
     """
 
     definition = """

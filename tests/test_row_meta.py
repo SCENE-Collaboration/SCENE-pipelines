@@ -36,7 +36,9 @@ def test_row_meta_tracked_tables() -> None:
 
 
 def test_row_meta_subclasses_match_tracked_masters() -> None:
-    assert set(RowMetaBase.__subclasses__()) == {
+    # Only this package's: a process may also import a lab package's row-meta tables.
+    ours = {c for c in RowMetaBase.__subclasses__() if c.__module__.startswith("scene_pipelines.")}
+    assert ours == {
         LabRowMeta,
         SubjectRowMeta,
         ProjectRowMeta,

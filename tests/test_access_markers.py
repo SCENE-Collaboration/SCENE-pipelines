@@ -25,10 +25,15 @@ def test_catalogs_are_central_and_admin_only():
 
 
 def test_acquired_rows_are_acquisition_only_and_origin_by_default():
-    for table in (Subject, Session, Location):
+    for table in (Subject, Session):
         assert not hasattr(table, "_sync_authority")
         assert sync_authority_of(table) is SyncAuthority.ORIGIN
         assert write_role_of(table) is WriteRole.ACQUISITION
+
+
+def test_locations_are_origin_and_writable_by_central():
+    assert sync_authority_of(Location) is SyncAuthority.ORIGIN
+    assert write_role_of(Location) is None
 
 
 def test_unmarked_tables_are_unrestricted():

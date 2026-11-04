@@ -20,88 +20,119 @@ pytestmark = [
 
 
 @pytest.fixture
-def store(dj_connection, monkeypatch, tmp_path):
-    """Two registered stores: a disk store set as ``SCENE_STORE``, and an S3 one."""
+def stores(dj_connection, monkeypatch, tmp_path):
+    """Registered stores: two disk stores, one unmounted, one with the wrong kind."""
     import datajoint as dj
     from scene_pipelines.ingestion.files.admin import ensure_store
     from scene_pipelines.ingestion.provenance import DuplicatePolicy
 
     monkeypatch.setenv("SCENE_DEPLOYMENT_ID", "test-local")
-    monkeypatch.setenv("SCENE_STORE", "test-disk")
-    stores = {
-        "test-disk": {"protocol": "file", "location": str(tmp_path / "store")},
-        "test-s3": {
-            "protocol": "s3",
-            "endpoint": "localhost:9000",
-            "bucket": "test",
-            "access_key": "x",
-            "secret_key": "x",
-            "location": "",
-        },
+    roots = {name: tmp_path / name for name in ("test-disk-a", "test-disk-b")}
+    for root in roots.values():
+        root.mkdir()
+    configured = {
+        **{name: {"protocol": "file", "location": str(root)} for name, root in roots.items()},
+        "test-unmounted": {"protocol": "file", "location": str(tmp_path / "not-mounted")},
+        "test-wrong-kind": {"protocol": "file", "location": str(tmp_path)},
     }
-    monkeypatch.setitem(dj.config, "stores", {**dict(dj.config.stores), **stores})
-    for name, kind in (("test-disk", "file"), ("test-s3", "s3")):
+    monkeypatch.setitem(dj.config, "stores", {**dict(dj.config.stores), **configured})
+    for name, kind in (
+        ("test-disk-a", "file"),
+        ("test-disk-b", "file"),
+        ("test-unmounted", "file"),
+        ("test-wrong-kind", "s3"),
+    ):
         ensure_store({"store_name": name, "store_kind": kind}, if_exists=DuplicatePolicy.VERIFY)
-    return tmp_path / "store"
+    return roots
 
 
-def test_register_file_copies_and_records_once(store, tmp_path):
+def test_register_file_copies_and_records_once(stores, tmp_path):
     from scene_pipelines.ingestion.files import locations, object_key, register_file
     from scene_pipelines.schemas.files.files import File
 
     path = tmp_path / "a.bin"
     path.write_bytes(b"register twice")
-    file = register_file(path)
-    assert register_file(path) == file
+    file = register_file(path, store="test-disk-a")
+    assert register_file(path, store="test-disk-a") == file
 
     assert len(File & file) == 1
-    assert locations(file) == ["test-disk"]
-    assert (store / object_key(file["file_sha256"])).read_bytes() == b"register twice"
+    assert locations(file) == ["test-disk-a"]
+    stored = stores["test-disk-a"] / object_key(file["file_sha256"])
+    assert stored.read_bytes() == b"register twice"
+    assert path.exists()
 
 
-def test_register_file_refuses_s3_stores(store, tmp_path):
-    from scene_pipelines.ingestion.files import register_file
+def test_register_file_replaces_a_partial_copy(stores, tmp_path):
+    from scene_pipelines.ingestion.files import hash_file, object_key, register_file
 
-    path = tmp_path / "b.bin"
-    path.write_bytes(b"upload me")
-    with pytest.raises(ValueError, match="transfer job"):
-        register_file(path, store="test-s3")
+    path = tmp_path / "p.bin"
+    path.write_bytes(b"complete bytes")
+    target = stores["test-disk-a"] / object_key(hash_file(path)[0])
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"compl")
+
+    register_file(path, store="test-disk-a")
+    assert target.read_bytes() == b"complete bytes"
 
 
-def test_remove_location_keeps_the_last_copy(store, tmp_path):
-    from scene_pipelines.ingestion.files import (
-        locations,
-        record_stored,
-        register_file,
-        remove_location,
-    )
+def test_remove_location_keeps_the_last_copy(stores, tmp_path):
+    from scene_pipelines.ingestion.files import locations, register_file, remove_location
 
     path = tmp_path / "c.bin"
     path.write_bytes(b"two copies")
-    file = register_file(path)
-    record_stored(file["file_sha256"], 10, store="test-s3")
-    assert locations(file) == ["test-disk", "test-s3"]
+    file = register_file(path, store="test-disk-a")
+    assert register_file(path, store="test-disk-b") == file
+    assert locations(file) == ["test-disk-a", "test-disk-b"]
 
-    remove_location(file)
-    assert locations(file) == ["test-s3"]
+    remove_location(file, store="test-disk-a")
+    assert locations(file) == ["test-disk-b"]
     with pytest.raises(ValueError, match="last copy"):
-        remove_location(file, store="test-s3")
+        remove_location(file, store="test-disk-b")
 
 
-def test_same_hash_with_another_size_is_refused(store):
-    from scene_pipelines.ingestion.files import record_stored
+def test_record_stored_checks_the_store(stores):
+    from scene_pipelines.ingestion.files import locations, object_key, record_stored
+
+    sha = "e" * 64
+    with pytest.raises(ValueError, match="no 4-byte object"):
+        record_stored(sha, 4, store="test-disk-a")
+
+    target = stores["test-disk-a"] / object_key(sha)  # copied by e.g. a transfer job
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"1234")
+    with pytest.raises(ValueError, match="no 5-byte object"):
+        record_stored(sha, 5, store="test-disk-a")
+    file = record_stored(sha, 4, store="test-disk-a")
+    assert locations(file) == ["test-disk-a"]
+
+
+def test_same_hash_with_another_size_is_refused(stores):
+    from scene_pipelines.ingestion.files import object_key, record_stored
 
     sha = "f" * 64
-    record_stored(sha, 10)
-    with pytest.raises(ValueError, match="10 bytes"):
-        record_stored(sha, 11)
+    for name, data in (("test-disk-a", b"x" * 10), ("test-disk-b", b"x" * 11)):
+        target = stores[name] / object_key(sha)
+        target.parent.mkdir(parents=True)
+        target.write_bytes(data)
+
+    record_stored(sha, 10, store="test-disk-a")
+    with pytest.raises(ValueError, match="stored with 10 bytes"):
+        record_stored(sha, 11, store="test-disk-b")
 
 
-def test_unknown_or_missing_store_is_refused(store, monkeypatch):
-    from scene_pipelines.ingestion.files import record_stored
+@pytest.mark.parametrize(
+    ("store", "message"),
+    [
+        ("nowhere", "unknown store"),
+        ("test-unmounted", "not mounted"),
+        ("test-wrong-kind", "store_kind is not file"),
+    ],
+)
+def test_bad_stores_are_refused(stores, tmp_path, store, message):
+    from scene_pipelines.ingestion.files import register_file
 
-    with pytest.raises(ValueError, match="unknown store"):
-        record_stored("e" * 64, 1, store="nowhere")
-    monkeypatch.delenv("SCENE_STORE")
-    with pytest.raises(ValueError, match="SCENE_STORE"):
-        record_stored("e" * 64, 1)
+    path = tmp_path / "d.bin"
+    path.write_bytes(b"nowhere to go")
+    with pytest.raises(ValueError, match=message):
+        register_file(path, store=store)
+    assert not (tmp_path / "not-mounted").exists()
