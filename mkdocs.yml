@@ -100,7 +100,8 @@ nav:
       - Instructions: tutorials/setup.md
       - Notebooks:
           - Getting started: tutorials/01_getting_started.ipynb
-          - Migrate existing pipeline: tutorials/02_mlai_mouse_ar.ipynb
+          - Register a DeepLabCut project: tutorials/02_dlc_ingestion.ipynb
+          - Migrate existing pipeline: tutorials/03_mlai_mouse_ar.ipynb
   - Guides:
       - Setup and configuration: guides/setup.md
       - Writing data: guides/writing-data.md

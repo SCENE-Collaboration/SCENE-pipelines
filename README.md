@@ -20,7 +20,7 @@ The documentation is built from [`docs/`](docs/) with MkDocs. Good places to sta
   [schemas and the registry](docs/guides/schemas.md), [provenance and sync](docs/guides/provenance.md).
 - [Development](docs/development.md): tests and building the documentation.
 
-[An existing lab: MLAI and MouseAR](examples/tutorials/02_mlai_mouse_ar.ipynb) shows a real lab pipeline (Mathis lab,
+[An existing lab: MLAI and MouseAR](examples/tutorials/03_mlai_mouse_ar.ipynb) shows a real lab pipeline (Mathis lab,
 Mouse AR) on the shared tables.
 
 ## Quickstart

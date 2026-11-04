@@ -5,7 +5,8 @@ The tutorial notebooks run against a local database. Each writes only to databas
 | Notebook | For |
 |---|---|
 | [Getting started](01_getting_started.ipynb) | Anyone new: register a lab's mice, sessions and files on the shared tables, add the lab's own tables, query across them. |
-| [An existing lab: MLAI and MouseAR](02_mlai_mouse_ar.ipynb) | Labs with an existing pipeline: the Mathis lab's real code for its lab layer, automatic ingestion and legacy tables. |
+| [Registering a DeepLabCut project](02_dlc_ingestion.ipynb) | Labs with DeepLabCut projects: a mouse project's keypoints and labels next to its mice and sessions, and queries across them. |
+| [An existing lab: MLAI and MouseAR](03_mlai_mouse_ar.ipynb) | Labs with an existing pipeline: the Mathis lab's real code for its lab layer, automatic ingestion and legacy tables. |
 
 ## Running them locally
 

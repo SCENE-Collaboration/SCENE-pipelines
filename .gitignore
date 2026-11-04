@@ -13,3 +13,6 @@ site/
 .dbdata/
 datajoint.json
 .cache
+
+# Example data of the tutorials, downloaded separately
+examples/tutorials/data/

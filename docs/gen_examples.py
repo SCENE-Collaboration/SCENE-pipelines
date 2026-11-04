@@ -1,7 +1,7 @@
 """Copy the tutorial notebooks from examples/ into the site at build time (mkdocs-gen-files).
 
 Links from a notebook to a docs page (``../../docs/introduction.md``) or to another notebook
-(``02_mlai_mouse_ar.ipynb``) are rewritten to the page's URL, because mkdocs-jupyter does not
+(``03_mlai_mouse_ar.ipynb``) are rewritten to the page's URL, because mkdocs-jupyter does not
 resolve Markdown links.
 """
 
