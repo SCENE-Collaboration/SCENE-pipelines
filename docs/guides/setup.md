@@ -59,6 +59,9 @@ precedence:
 }
 ```
 
+DataJoint's own guides cover this in full: [Configure Database](https://docs.datajoint.com/how-to/configure-database/)
+and [Manage Secrets](https://docs.datajoint.com/how-to/manage-secrets/).
+
 For the local Docker database, `.env.example` already holds the `DJ_*` variables; load `.env` into your shell
 (`set -a && . ./.env && set +a`) or your IDE before connecting.
 
