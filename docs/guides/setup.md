@@ -2,16 +2,20 @@
 
 ## Installation
 
+To install `v0.0.1` directly from GitHub, run:
+
 ```bash
-pip install -e ".[dev]"   # development, from a clone
-pip install .             # usage
+pip install "scene-pipelines[dev] @ git+https://github.com/SCENE-Collaboration/SCENE-pipelines.git@v0.0.1"
 ```
 
-From GitHub (`dev` can be a commit hash or branch):
-
+Or clone the repository, and install an editable version
 ```bash
-pip install "git+ssh://git@github.com/SCENE-Collaboration/SCENE-pipelines.git@dev"
-pip install "git+https://github.com/SCENE-Collaboration/SCENE-pipelines.git@dev"
+# Clone and change directory
+git clone https://github.com/SCENE-Collaboration/SCENE-pipelines.git
+cd SCENE-pipelines
+
+# Install using pip (editable install)
+pip install -e ".[dev]"
 ```
 
 Build a wheel:
