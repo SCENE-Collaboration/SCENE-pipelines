@@ -11,6 +11,7 @@ links the two by key.
 
 | You want to | Read |
 |---|---|
+| learn DataJoint itself first | [DataJoint tutorials](https://docs.datajoint.com/tutorials/) (see [New to DataJoint?](tutorials/setup.md#new-to-datajoint)) |
 | understand what this is and how the pieces fit | [Introduction](introduction.md) |
 | try it on a local database | [Getting started](tutorials/01_getting_started.ipynb) |
 | install it and configure a database | [Setup and configuration](guides/setup.md) |

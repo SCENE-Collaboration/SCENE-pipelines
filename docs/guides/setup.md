@@ -2,16 +2,23 @@
 
 ## Installation
 
+To install the latest version directly from GitHub, run:
+
 ```bash
-pip install -e ".[dev]"   # development, from a clone
-pip install .             # usage
+pip install "scene-pipelines[dev] @ git+https://github.com/SCENE-Collaboration/SCENE-pipelines.git"
 ```
 
-From GitHub (`dev` can be a commit hash or branch):
+To pin a release, add its tag, e.g. `...SCENE-pipelines.git@v0.0.1`
+(see [tags](https://github.com/SCENE-Collaboration/SCENE-pipelines/tags)).
 
+Or clone the repository, and install an editable version
 ```bash
-pip install "git+ssh://git@github.com/SCENE-Collaboration/SCENE-pipelines.git@dev"
-pip install "git+https://github.com/SCENE-Collaboration/SCENE-pipelines.git@dev"
+# Clone and change directory
+git clone https://github.com/SCENE-Collaboration/SCENE-pipelines.git
+cd SCENE-pipelines
+
+# Install using pip (editable install)
+pip install -e ".[dev]"
 ```
 
 Build a wheel:
@@ -54,6 +61,9 @@ precedence:
   "database": {"host": "db.mylab.org", "port": 3306, "user": "mlai_acquisition"}
 }
 ```
+
+DataJoint's own guides cover this in full: [Configure Database](https://docs.datajoint.com/how-to/configure-database/)
+and [Manage Secrets](https://docs.datajoint.com/how-to/manage-secrets/).
 
 For the local Docker database, `.env.example` already holds the `DJ_*` variables; load `.env` into your shell
 (`set -a && . ./.env && set +a`) or your IDE before connecting.
