@@ -3,7 +3,7 @@
 site_name: SCENE pipelines
 site_description: SCENE shared DataJoint schemas and ingestion helpers
 repo_url: https://github.com/SCENE-Collaboration/SCENE-pipelines
-edit_uri: edit/dev/docs/
+edit_uri: edit/main/docs/
 
 theme:
   name: material

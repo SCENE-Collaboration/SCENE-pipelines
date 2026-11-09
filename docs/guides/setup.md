@@ -2,11 +2,14 @@
 
 ## Installation
 
-To install `v0.0.1` directly from GitHub, run:
+To install the latest version directly from GitHub, run:
 
 ```bash
-pip install "scene-pipelines[dev] @ git+https://github.com/SCENE-Collaboration/SCENE-pipelines.git@v0.0.1"
+pip install "scene-pipelines[dev] @ git+https://github.com/SCENE-Collaboration/SCENE-pipelines.git"
 ```
+
+To pin a release, add its tag, e.g. `...SCENE-pipelines.git@v0.0.1`
+(see [tags](https://github.com/SCENE-Collaboration/SCENE-pipelines/tags)).
 
 Or clone the repository, and install an editable version
 ```bash
