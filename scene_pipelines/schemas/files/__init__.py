@@ -1,9 +1,9 @@
-"""SCENE shared file catalogue (Store, File, Location).
+"""SCENE shared files (``File``).
 
-The bytes of recordings, videos and large analysis files live in stores
-(lab servers, S3 buckets), not in the database. ``File`` identifies bytes by content;
-``Location`` lists the stores that hold a copy now, at ``object_key(file_sha256)``.
-What a file is (a video, a labels file) belongs to the table that references ``File``.
+The bytes of recordings, videos and other files from outside the pipeline live in the
+``scene-files`` store (a lab server, an S3 bucket), not in the database. ``File`` identifies
+them by content and references them with DataJoint's ``<filepath@>`` type. What a file is
+(a video, an EEG recording) belongs to the table that references ``File``.
 
 DDL: ``FILES_SCHEMA_VERSION`` / ``SchemaVersion``.
 """

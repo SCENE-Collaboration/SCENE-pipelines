@@ -25,5 +25,3 @@
 ## Files
 
 ::: scene_pipelines.schemas.files.files
-
-::: scene_pipelines.schemas.files.row_meta

@@ -1,75 +1,48 @@
-"""SCENE-shared file catalogue: stores, file contents, and where copies are now."""
+"""SCENE-shared files: bytes kept in a store outside the database, identified by their SHA-256."""
 
 import datajoint as dj
 
-from scene_pipelines.core.access_markers import (
-    SyncAuthority,
-    WriteRole,
-    mark_sync_authority,
-    mark_write_role,
-)
+from scene_pipelines.core.access_markers import SyncAuthority, mark_sync_authority
 from scene_pipelines.schemas.files._schema import schema
-from scene_pipelines.schemas.scene.lab import Lab  # noqa: F401  # FK: Store -> Lab
+
+FILE_STORE = "scene-files"
+"""Name of the DataJoint store that holds the bytes of every ``File``.
+
+Each machine maps the name to a place in ``dj.config["stores"]``: the lab's file server on lab
+machines, an S3 bucket on central. Every copy of the store holds a file at the same path,
+``object_key(file_sha256)``, so a row reads from whichever copy the machine is configured for.
+"""
 
 
-@mark_sync_authority(SyncAuthority.CENTRAL)
-@mark_write_role(WriteRole.ADMIN)
-@schema
-class Store(dj.Manual):
-    """Admin-only insertion: managed storage where file bytes are kept (a lab server, an S3 bucket).
+def object_key(file_sha256: str) -> str:
+    """Path of a file in every copy of the store, from its content: ``sha256/ab/abcd...``.
 
-    A few per lab; rigs and laptops are not stores. Files are kept at ``object_key(sha256)``.
-
-    ``store_name`` is also the name under ``dj.config["stores"]`` on each machine
-    that uses it; connection details and credentials stay there, never in the database.
-    The file helpers check that ``store_kind`` matches the configured ``protocol``.
+    Holds no names, so a listing of the store reveals nothing about participants, and the same
+    bytes always land on the same path.
     """
-
-    definition = """
-    store_name: varchar(32)  # e.g. mlai-raw — never renamed
-    ---
-    store_kind: enum('s3', 'file')
-    -> [nullable] Lab  # lab that runs it; null: central
-    store_details='': varchar(255)
-    """
+    return f"sha256/{file_sha256[:2]}/{file_sha256}"
 
 
 @mark_sync_authority(SyncAuthority.SHARED)
 @schema
 class File(dj.Manual):
-    """The bytes of one file, identified by content: the same bytes are one row everywhere.
+    """The bytes of one file that comes from outside the pipeline, identified by content.
 
-    Immutable and not stamped as RowMeta. Copies are in ``Location``; The names and roles (e.g.
-    EEG recording file, DLC config file) are defined in the downstream table referencing ``File``.
+    For files kept byte for byte: recordings, videos, configuration files. The same bytes are
+    one row everywhere, so rows are immutable and not stamped as RowMeta. What a file is (an EEG
+    recording, a DLC config) belongs to the table that references ``File``. Data the pipeline
+    computes does not go here: it uses DataJoint's own storage types (``<npy@>``, ``<object@>``,
+    ``<blob@>``) in its own tables.
 
-    For raw data acquired once and shared across labs. Derived, recomputable
-    results use DataJoint's own object storage instead (``<blob@store>``,
-    ``<attach@store>``, ``<object@store>``), which DataJoint manages and
-    garbage-collects itself.
+    ``content`` is DataJoint's reference to the bytes (``<filepath@scene-files>``), at
+    ``object_key(file_sha256)``. On insert DataJoint checks that the file is in the store;
+    fetching ``content`` returns an ``ObjectRef`` (``read()``, ``open()``, ``download()``).
+    DataJoint never deletes these files.
     """
 
-    definition = """
+    definition = f"""
     file_sha256: char(64)  # lowercase hex SHA-256 of the bytes
     ---
     size_bytes: int64
-    """
-
-
-@schema
-class Location(dj.Manual):
-    """A copy of a file in a store, at ``object_key(file_sha256)``; it exists while the copy does.
-
-    Each store has one writer: the lab's ingestion for a lab store, or central for a
-    central store (``Store.lab_id`` null). That writer is the row's origin, so
-    syncing a store's rows never conflicts. No write-role marker, so central can
-    record copies in its own stores.
-
-    The file helpers record a ``File`` together with its first ``Location`` and
-    refuse to remove the last one. That is a convention, not a database
-    constraint: a site also holds ``File`` rows whose copies are recorded elsewhere.
-    """
-
-    definition = """
-    -> File
-    -> Store
+    content: <filepath@{FILE_STORE}>  # the bytes in the store, at object_key(file_sha256)
     """

@@ -1,26 +1,21 @@
-"""Write helpers for the file catalogue (Store, File, Location).
+"""Write helpers for ``File``: put the bytes in the ``scene-files`` store, then record them.
 
 Importing this package registers the files schema, so it is not re-exported
 from ``scene_pipelines.ingestion``: labs without files never import it.
-``Store`` is an admin catalog: see ``scene_pipelines.ingestion.files.admin``.
+See ``scene_pipelines.ingestion.files.files`` for how to configure the store.
 """
 
-from scene_pipelines.ingestion.files._version import FILES_WRITER_VERSION
 from scene_pipelines.ingestion.files.files import (
     hash_file,
-    locations,
-    object_key,
-    record_stored,
+    record_file,
     register_file,
-    remove_location,
 )
+from scene_pipelines.schemas.files.files import FILE_STORE, object_key
 
 __all__ = [
-    "FILES_WRITER_VERSION",
+    "FILE_STORE",
     "hash_file",
-    "locations",
     "object_key",
-    "record_stored",
+    "record_file",
     "register_file",
-    "remove_location",
 ]

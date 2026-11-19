@@ -9,7 +9,7 @@ from scene_pipelines.core.access_markers import (
     sync_authority_of,
     write_role_of,
 )
-from scene_pipelines.schemas.files.files import File, Location, Store
+from scene_pipelines.schemas.files.files import File
 from scene_pipelines.schemas.provenance.deployment import Deployment
 from scene_pipelines.schemas.provenance.row_meta import RowMetaBase
 from scene_pipelines.schemas.scene.lab import Lab
@@ -19,7 +19,7 @@ from scene_pipelines.schemas.scene.subject import Subject, SubjectKind
 
 
 def test_catalogs_are_central_and_admin_only():
-    for table in (Lab, Project, Store):
+    for table in (Lab, Project):
         assert sync_authority_of(table) is SyncAuthority.CENTRAL
         assert write_role_of(table) is WriteRole.ADMIN
 
@@ -29,11 +29,6 @@ def test_acquired_rows_are_acquisition_only_and_origin_by_default():
         assert not hasattr(table, "_sync_authority")
         assert sync_authority_of(table) is SyncAuthority.ORIGIN
         assert write_role_of(table) is WriteRole.ACQUISITION
-
-
-def test_locations_are_origin_and_writable_by_central():
-    assert sync_authority_of(Location) is SyncAuthority.ORIGIN
-    assert write_role_of(Location) is None
 
 
 def test_unmarked_tables_are_unrestricted():
