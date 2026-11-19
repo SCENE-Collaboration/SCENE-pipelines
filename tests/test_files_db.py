@@ -104,3 +104,16 @@ def test_same_hash_with_another_size_is_refused(file_store):
     _place(file_store, sha, b"x" * 11)
     with pytest.raises(ValueError, match="recorded with 10 bytes"):
         record_file(sha, 11)
+
+
+def test_verify_file_detects_changed_bytes(file_store, tmp_path):
+    from scene_pipelines.ingestion.files import object_key, register_file, verify_file
+
+    path = tmp_path / "v.bin"
+    path.write_bytes(b"original")
+    file = register_file(path)
+    verify_file(file)
+
+    (file_store / object_key(file["file_sha256"])).write_bytes(b"tampered")  # same size
+    with pytest.raises(ValueError, match="other bytes"):
+        verify_file(file)

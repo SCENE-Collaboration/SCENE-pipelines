@@ -9,6 +9,7 @@ from scene_pipelines.ingestion.files.files import (
     hash_file,
     record_file,
     register_file,
+    verify_file,
 )
 from scene_pipelines.schemas.files.files import FILE_STORE, object_key
 
@@ -18,4 +19,5 @@ __all__ = [
     "object_key",
     "record_file",
     "register_file",
+    "verify_file",
 ]

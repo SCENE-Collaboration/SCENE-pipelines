@@ -117,6 +117,31 @@ def record_file(file_sha256: str, size_bytes: int) -> DjKey[File]:
     return file
 
 
+def verify_file(file: DjKey[File]) -> None:
+    """Read a file back from the store and check its SHA-256 and size against its row.
+
+    Reads the whole file, in chunks: an audit to run now and then, not a step of every write.
+
+    Args:
+        file: ``File`` primary key.
+
+    Raises:
+        ValueError: If the bytes in the store do not match the row.
+        FileNotFoundError: If the store has no file at the row's path.
+    """
+    row = (File & file).proj("size_bytes").fetch1()
+    digest, size = hashlib.sha256(), 0
+    with (File & file).fetch1("content").open() as stored:
+        while chunk := stored.read(_CHUNK):
+            digest.update(chunk)
+            size += len(chunk)
+    if (digest.hexdigest(), size) != (row["file_sha256"], row["size_bytes"]):
+        raise ValueError(
+            f"store {FILE_STORE!r} holds other bytes for {row['file_sha256']}: "
+            f"{size} bytes with SHA-256 {digest.hexdigest()}"
+        )
+
+
 def _backend() -> StorageBackend:
     """DataJoint's backend for the ``scene-files`` store; a store on disk must be mounted."""
     spec = dj.config.get_store_spec(FILE_STORE)
