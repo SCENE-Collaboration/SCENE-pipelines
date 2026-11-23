@@ -19,21 +19,29 @@ pytestmark = [
 ]
 
 
-@pytest.fixture
-def file_store(dj_connection, monkeypatch, tmp_path):
-    """The ``scene-files`` store, configured as a folder on disk; returns the folder."""
+def _configure(monkeypatch, root):
+    """Point the ``scene-files`` store at the folder ``root``."""
     import datajoint as dj
     from scene_pipelines.ingestion.files import FILE_STORE
 
-    root = tmp_path / "store"
-    root.mkdir()
     store = {"protocol": "file", "location": str(root), "filepath_prefix": "sha256"}
     monkeypatch.setitem(dj.config, "stores", {**dict(dj.config.stores), FILE_STORE: store})
+
+
+@pytest.fixture
+def file_store(dj_connection, monkeypatch, tmp_path):
+    """A prepared ``scene-files`` store on disk; returns its folder."""
+    from scene_pipelines.ingestion.files.admin import init_file_store
+
+    root = tmp_path / "store"
+    root.mkdir()
+    _configure(monkeypatch, root)
+    init_file_store(new_copy=True)  # other tests' files are recorded
     return root
 
 
 def _place(root, sha, data):
-    """Put bytes in the store at the key of ``sha``, as a transfer job would."""
+    """Put bytes at the key of ``sha``, as a transfer job would."""
     from scene_pipelines.ingestion.files import object_key
 
     target = root / object_key(sha)
@@ -78,6 +86,24 @@ def test_register_file_replaces_a_partial_copy(file_store, tmp_path):
 
     register_file(path)
     assert target.read_bytes() == b"complete bytes"
+
+
+def test_init_file_store_refuses_a_place_without_the_recorded_files(
+    file_store, monkeypatch, tmp_path
+):
+    from scene_pipelines.ingestion.files import STORE_MARKER, register_file
+    from scene_pipelines.ingestion.files.admin import init_file_store
+
+    path = tmp_path / "known.bin"
+    path.write_bytes(b"recorded in the database")
+    register_file(path)
+
+    elsewhere = tmp_path / "mount-point"  # empty: disk not mounted
+    elsewhere.mkdir()
+    _configure(monkeypatch, elsewhere)
+    with pytest.raises(ValueError, match="holds none of the files"):
+        init_file_store()
+    assert not (elsewhere / STORE_MARKER).exists()
 
 
 def test_record_file_checks_the_store(file_store):

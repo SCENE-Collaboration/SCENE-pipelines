@@ -1,30 +1,16 @@
 """Put files in the ``scene-files`` store and record them in ``File``.
 
-``register_file`` copies a local file into the store with DataJoint's storage backend and
-records it. A transfer job (e.g. rclone) may copy instead; ``record_file`` then records what it
-put there. Either way the bytes are in the store before their row.
+Each machine configures the store in ``dj.config["stores"]`` (or ``DJ_STORES``)::
 
-Each machine that reads or writes files configures the store under its name, ``scene-files``,
-next to the database connection (``datajoint.json``, ``DJ_STORES`` or ``dj.config``)::
+    {"scene-files": {"protocol": "file", "location": "/mnt/labserver/scene-files",
+                     "filepath_prefix": "sha256"}}
+    {"scene-files": {"protocol": "s3", "endpoint": "s3.example.org", "bucket": "scene",
+                     "location": "scene-files", "filepath_prefix": "sha256"}}
 
-    {"stores": {"scene-files": {"protocol": "file", "location": "/mnt/labserver/scene-files",
-                                "filepath_prefix": "sha256"}}}
-
-    {"stores": {"scene-files": {"protocol": "s3", "endpoint": "s3.example.org",
-                                "bucket": "scene", "location": "scene-files",
-                                "filepath_prefix": "sha256"}}}
-
-S3 keys go in ``.secrets/stores.scene-files.access_key`` and ``...secret_key``, never in the
-database; S3 needs ``s3fs`` (``pip install "scene-pipelines[s3]"``). ``filepath_prefix`` makes
-DataJoint refuse any path outside ``sha256/``.
-
-Every copy of the store holds a file at ``object_key(file_sha256)``, so copies can be kept in
-step with ``rclone copy --checksum`` (``copy``, not ``sync``: these files are never deleted).
-A database that receives ``File`` rows from another one (sync) reads them from its own copy,
-so the bytes must reach that copy before the rows do.
-
-Fetch the bytes with DataJoint: ``(File & key).fetch1("content")`` returns an ``ObjectRef``
-with ``read()``, ``open()`` and ``download(folder)``.
+S3 needs ``scene-pipelines[s3]``, with keys in ``.secrets/stores.scene-files.*``. Each copy of
+the store is prepared once with ``admin.init_file_store()``. Mount a disk share above the
+store's folder, so that an unmounted share has no such folder. Keep copies in step with
+``rclone copy --checksum`` (never ``sync``), bytes before rows.
 """
 
 from __future__ import annotations
@@ -39,6 +25,9 @@ from datajoint.storage import StorageBackend
 
 from scene_pipelines.core.types import DjKey
 from scene_pipelines.schemas.files.files import FILE_STORE, File, object_key
+
+STORE_MARKER = "scene-files.json"
+"""Marker file at the root of every prepared copy of the store."""
 
 _CHUNK = 1 << 20
 _SHA256 = re.compile(r"[0-9a-f]{64}")
@@ -55,21 +44,17 @@ def hash_file(path: str | Path) -> tuple[str, int]:
 
 
 def register_file(path: str | Path) -> DjKey[File]:
-    """Copy a local file into the store unless it is there, and record it in ``File``.
-
-    The file is hashed first, then copied with DataJoint's storage backend (on disk: to a
-    temporary file, then renamed). The original stays where it is. Registering the same bytes
-    again copies nothing and returns the same key.
+    """Copy a local file into the store unless it is there, and record it.
 
     Args:
-        path: A local file.
+        path: A local file; it stays where it is.
 
     Returns:
-        ``File`` primary key ``{"file_sha256": ...}``.
+        ``File`` key.
 
     Raises:
-        ValueError: If ``path`` is not a file, or the store is on disk and not mounted.
-        DataJointError: If ``scene-files`` is not configured in ``dj.config["stores"]``.
+        ValueError: If ``path`` is not a file, or the store is unusable.
+        DataJointError: If ``scene-files`` is not configured.
     """
     path = Path(path)
     if not path.is_file():
@@ -78,29 +63,25 @@ def register_file(path: str | Path) -> DjKey[File]:
     backend, key = _backend(), object_key(file_sha256)
     if not _holds(backend, key, size_bytes):
         if backend.exists(key):
-            backend.remove(key)  # a partial copy; the rename below cannot replace it on Windows
+            backend.remove(key)  # wrong size; on Windows the rename cannot overwrite it
         backend.put_file(path, key)
     return record_file(file_sha256, size_bytes)
 
 
 def record_file(file_sha256: str, size_bytes: int) -> DjKey[File]:
-    """Record bytes that are already in the store at ``object_key(file_sha256)``.
-
-    For a transfer job that has put the bytes there and checked them, e.g. with
-    ``rclone copy --checksum``. Checks that the store holds a file of ``size_bytes`` at the
-    key; recording the same bytes again does nothing.
+    """Record bytes already at ``object_key(file_sha256)``, e.g. copied there by rclone.
 
     Args:
         file_sha256: SHA-256 of the bytes, hex.
         size_bytes: Their size.
 
     Returns:
-        ``File`` primary key ``{"file_sha256": ...}``.
+        ``File`` key.
 
     Raises:
-        ValueError: If the hash or size is malformed, the store holds no file of that size
-            at the key, or the hash is recorded with another size.
-        DataJointError: If ``scene-files`` is not configured in ``dj.config["stores"]``.
+        ValueError: If the hash or size is malformed, the store is unusable or lacks the
+            file, or the hash is recorded with another size.
+        DataJointError: If ``scene-files`` is not configured.
     """
     file = {"file_sha256": file_sha256.lower()}
     if not _SHA256.fullmatch(file["file_sha256"]) or size_bytes < 0:
@@ -118,16 +99,11 @@ def record_file(file_sha256: str, size_bytes: int) -> DjKey[File]:
 
 
 def verify_file(file: DjKey[File]) -> None:
-    """Read a file back from the store and check its SHA-256 and size against its row.
-
-    Reads the whole file, in chunks: an audit to run now and then, not a step of every write.
-
-    Args:
-        file: ``File`` primary key.
+    """Re-read a file from the store and check its SHA-256 and size (an occasional audit).
 
     Raises:
-        ValueError: If the bytes in the store do not match the row.
-        FileNotFoundError: If the store has no file at the row's path.
+        ValueError: If the bytes do not match the row.
+        FileNotFoundError: If the file is missing from the store.
     """
     row = (File & file).proj("size_bytes").fetch1()
     digest, size = hashlib.sha256(), 0
@@ -143,11 +119,17 @@ def verify_file(file: DjKey[File]) -> None:
 
 
 def _backend() -> StorageBackend:
-    """DataJoint's backend for the ``scene-files`` store; a store on disk must be mounted."""
+    """Backend of the ``scene-files`` store; refuses an unmounted or unprepared one."""
     spec = dj.config.get_store_spec(FILE_STORE)
     if spec["protocol"] == "file" and not Path(spec["location"]).is_dir():
         raise ValueError(f"store {FILE_STORE!r} is not mounted at {spec['location']}")
-    return get_store_backend(FILE_STORE)
+    backend = get_store_backend(FILE_STORE)
+    if not backend.exists(STORE_MARKER):
+        raise ValueError(
+            f"store {FILE_STORE!r} has no {STORE_MARKER} at {spec['location']}: not mounted, "
+            "wrong location, or not prepared with admin.init_file_store()"
+        )
+    return backend
 
 
 def _holds(backend: StorageBackend, key: str, size_bytes: int) -> bool:
