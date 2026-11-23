@@ -7,10 +7,8 @@ Each machine configures the store in ``dj.config["stores"]`` (or ``DJ_STORES``):
     {"scene-files": {"protocol": "s3", "endpoint": "s3.example.org", "bucket": "scene",
                      "location": "scene-files", "filepath_prefix": "sha256"}}
 
-S3 needs ``scene-pipelines[s3]``, with keys in ``.secrets/stores.scene-files.*``. Each copy of
-the store is prepared once with ``admin.init_file_store()``. Mount a disk share above the
-store's folder, so that an unmounted share has no such folder. Keep copies in step with
-``rclone copy --checksum`` (never ``sync``), bytes before rows.
+S3 needs ``scene-pipelines[s3]``, with keys in ``.secrets/stores.scene-files.*``. Preparing,
+copying and auditing a store: see Administration > File store in the docs.
 """
 
 from __future__ import annotations
@@ -62,8 +60,8 @@ def register_file(path: str | Path) -> DjKey[File]:
     file_sha256, size_bytes = hash_file(path)
     backend, key = _backend(), object_key(file_sha256)
     if not _holds(backend, key, size_bytes):
-        if backend.exists(key):
-            backend.remove(key)  # wrong size; on Windows the rename cannot overwrite it
+        if backend.protocol == "file" and backend.exists(key):
+            backend.remove(key)  # wrong size; put_file cannot overwrite on Windows (#1744)
         backend.put_file(path, key)
     return record_file(file_sha256, size_bytes)
 
