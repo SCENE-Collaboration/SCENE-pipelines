@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import datajoint as dj
@@ -24,6 +25,9 @@ _MARKER_CONTENT = json.dumps(
 
 def init_file_store(*, new_copy: bool = False) -> None:
     """Write the store marker, so the write helpers accept this machine's copy of the store.
+
+    On disk, first creates the shared folders ``sha256/00`` to ``sha256/ff``; on POSIX, give
+    the root folder the writers' group and ``chmod 2775`` beforehand.
 
     Args:
         new_copy: Accept a place holding none of the recorded files: a new copy to fill.
@@ -47,9 +51,22 @@ def init_file_store(*, new_copy: bool = False) -> None:
                 f"store {FILE_STORE!r} at {location} holds none of the files this database "
                 "records (not mounted? wrong location?); for a new copy, pass new_copy=True"
             )
+    if spec["protocol"] == "file":
+        _make_shared_folders(Path(location))
     backend.put_buffer(_MARKER_CONTENT, STORE_MARKER)
 
 
 def _some_recorded_files() -> list[str]:
     """SHA-256 of a few recorded files."""
     return [key["file_sha256"] for key in File.keys(limit=_SAMPLE)]
+
+
+def _make_shared_folders(root: Path) -> None:
+    """Create ``sha256/00`` to ``sha256/ff``; group-writable and setgid on POSIX."""
+    for folder in [root / "sha256", *(root / "sha256" / f"{i:02x}" for i in range(256))]:
+        try:
+            folder.mkdir()
+        except FileExistsError:
+            continue
+        if os.name == "posix":
+            folder.chmod(0o2775)  # mkdir's mode is masked by the umask

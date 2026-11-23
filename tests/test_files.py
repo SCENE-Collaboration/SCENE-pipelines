@@ -2,6 +2,8 @@
 
 import hashlib
 import json
+import os
+import stat
 
 import datajoint as dj
 import pytest
@@ -95,6 +97,16 @@ def test_init_file_store_writes_the_marker(monkeypatch, tmp_path):
     _recorded(monkeypatch)
     admin.init_file_store()
     assert json.loads((tmp_path / STORE_MARKER).read_text())["store"] == FILE_STORE
+
+
+def test_init_file_store_creates_the_shared_folders(monkeypatch, tmp_path):
+    _disk_store(monkeypatch, tmp_path)
+    _recorded(monkeypatch)
+    admin.init_file_store()
+    folders = sorted(folder.name for folder in (tmp_path / "sha256").iterdir())
+    assert folders == [f"{i:02x}" for i in range(256)]
+    if os.name == "posix":
+        assert stat.S_IMODE((tmp_path / "sha256" / "ab").stat().st_mode) == 0o2775
 
 
 def test_init_file_store_runs_only_once(monkeypatch, tmp_path):
