@@ -8,7 +8,7 @@ for the configuration.
 ## Prepare a copy
 
 Run [`init_file_store`][scene_pipelines.ingestion.files.admin.init_file_store] once, by hand, on a machine
-configured for the copy. It writes `scene-files.json` at the root; `register_file` and `record_file` refuse a
+configured for the copy. It writes `scene-files.json` at the root; `store_file` and `register_stored_file` refuse a
 store without it.
 
 ```python

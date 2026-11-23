@@ -4,17 +4,21 @@ import hashlib
 import json
 import os
 import stat
+import sys
 
 import datajoint as dj
 import pytest
+from datajoint.storage import StorageBackend
 from scene_pipelines.ingestion.files import (
     FILE_STORE,
     STORE_MARKER,
+    StoredFile,
     admin,
     hash_file,
     object_key,
-    record_file,
     register_file,
+    register_stored_file,
+    store_file,
 )
 from scene_pipelines.schemas.files.files import File
 
@@ -48,14 +52,42 @@ def test_file_content_is_a_reference_into_the_file_store():
 
 
 @pytest.mark.parametrize("sha", ["abc", "g" * 64, "a" * 65])
-def test_record_file_rejects_malformed_hashes(sha):
+def test_register_stored_file_rejects_malformed_hashes(sha):
     with pytest.raises(ValueError, match="SHA-256"):
-        record_file(sha, 1)
+        register_stored_file(StoredFile(sha, 1))
 
 
-def test_record_file_rejects_negative_sizes():
+def test_register_stored_file_rejects_negative_sizes():
     with pytest.raises(ValueError, match="or size"):
-        record_file("a" * 64, -1)
+        register_stored_file(StoredFile("a" * 64, -1))
+
+
+def test_store_file_copies_without_the_database(monkeypatch, tmp_path):
+    store = tmp_path / "store"
+    store.mkdir()
+    _disk_store(monkeypatch, store)
+    _recorded(monkeypatch)
+    admin.init_file_store()
+    path = tmp_path / "a.bin"
+    path.write_bytes(b"stored only")
+
+    stored = store_file(path)
+    assert stored == StoredFile(*hash_file(path))
+    assert (store / object_key(stored.sha256)).read_bytes() == b"stored only"
+
+
+@pytest.mark.xfail(
+    sys.platform == "win32", strict=True, reason="datajoint-python#1744: no overwrite on Windows"
+)
+def test_datajoint_put_file_overwrites(tmp_path):
+    """Once this passes on Windows, drop the remove() before put_file in store_file."""
+    store = tmp_path / "store"
+    (store / "x").mkdir(parents=True)
+    (store / "x" / "a.bin").write_bytes(b"old")
+    source = tmp_path / "a.bin"
+    source.write_bytes(b"new")
+    StorageBackend({"protocol": "file", "location": str(store)}).put_file(source, "x/a.bin")
+    assert (store / "x" / "a.bin").read_bytes() == b"new"
 
 
 def test_register_file_refuses_a_folder(tmp_path):

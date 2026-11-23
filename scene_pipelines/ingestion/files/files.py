@@ -16,6 +16,7 @@ from __future__ import annotations
 import hashlib
 import re
 from pathlib import Path
+from typing import NamedTuple
 
 import datajoint as dj
 from datajoint.hash_registry import get_store_backend
@@ -41,8 +42,15 @@ def hash_file(path: str | Path) -> tuple[str, int]:
     return digest.hexdigest(), size
 
 
+class StoredFile(NamedTuple):
+    """Bytes in the store: their SHA-256 (hex) and size."""
+
+    sha256: str
+    size_bytes: int
+
+
 def register_file(path: str | Path) -> DjKey[File]:
-    """Copy a local file into the store unless it is there, and record it.
+    """Store a local file and register it: ``store_file``, then ``register_stored_file``.
 
     Args:
         path: A local file; it stays where it is.
@@ -54,33 +62,52 @@ def register_file(path: str | Path) -> DjKey[File]:
         ValueError: If ``path`` is not a file, or the store is unusable.
         DataJointError: If ``scene-files`` is not configured.
     """
+    return register_stored_file(store_file(path))
+
+
+def store_file(path: str | Path) -> StoredFile:
+    """Copy a local file into the store unless it is there; no database write.
+
+    Validate the file first, and store only finished files: a later change goes unnoticed
+    until ``verify_file`` (datajoint-python#1745).
+
+    Args:
+        path: A local file; it stays where it is.
+
+    Returns:
+        Its ``StoredFile``, for ``register_stored_file``.
+
+    Raises:
+        ValueError: If ``path`` is not a file, or the store is unusable.
+        DataJointError: If ``scene-files`` is not configured.
+    """
     path = Path(path)
     if not path.is_file():
         raise ValueError(f"not a file: {path}")
-    file_sha256, size_bytes = hash_file(path)
-    backend, key = _backend(), object_key(file_sha256)
-    if not _holds(backend, key, size_bytes):
+    stored = StoredFile(*hash_file(path))
+    backend, key = _backend(), object_key(stored.sha256)
+    if not _holds(backend, key, stored.size_bytes):
         if backend.protocol == "file" and backend.exists(key):
             backend.remove(key)  # wrong size; put_file cannot overwrite on Windows (#1744)
         backend.put_file(path, key)
-    return record_file(file_sha256, size_bytes)
+    return stored
 
 
-def record_file(file_sha256: str, size_bytes: int) -> DjKey[File]:
-    """Record bytes already at ``object_key(file_sha256)``, e.g. copied there by rclone.
+def register_stored_file(stored: StoredFile) -> DjKey[File]:
+    """Register bytes already in the store (by ``store_file``, or a transfer job) in ``File``.
 
     Args:
-        file_sha256: SHA-256 of the bytes, hex.
-        size_bytes: Their size.
+        stored: Their SHA-256 and size, e.g. ``StoredFile(sha256, size_bytes)``.
 
     Returns:
         ``File`` key.
 
     Raises:
         ValueError: If the hash or size is malformed, the store is unusable or lacks the
-            file, or the hash is recorded with another size.
+            file, or the hash is registered with another size.
         DataJointError: If ``scene-files`` is not configured.
     """
+    file_sha256, size_bytes = stored
     file = {"file_sha256": file_sha256.lower()}
     if not _SHA256.fullmatch(file["file_sha256"]) or size_bytes < 0:
         raise ValueError(f"invalid SHA-256 or size: {file_sha256!r}, {size_bytes}")
@@ -91,7 +118,7 @@ def record_file(file_sha256: str, size_bytes: int) -> DjKey[File]:
     stored_size = (File & file).proj("size_bytes").fetch1()["size_bytes"]
     if stored_size != size_bytes:
         raise ValueError(
-            f"file {file['file_sha256']} is recorded with {stored_size} bytes, not {size_bytes}"
+            f"file {file['file_sha256']} is registered with {stored_size} bytes, not {size_bytes}"
         )
     return file
 

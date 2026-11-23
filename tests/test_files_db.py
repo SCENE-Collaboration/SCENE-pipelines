@@ -106,30 +106,45 @@ def test_init_file_store_refuses_a_place_without_the_recorded_files(
     assert not (elsewhere / STORE_MARKER).exists()
 
 
-def test_record_file_checks_the_store(file_store):
-    from scene_pipelines.ingestion.files import record_file
+def test_register_stored_file_checks_the_store(file_store):
+    from scene_pipelines.ingestion.files import StoredFile, register_stored_file
 
     sha = "e" * 64
     with pytest.raises(ValueError, match="no 4-byte file"):
-        record_file(sha, 4)
+        register_stored_file(StoredFile(sha, 4))
 
     _place(file_store, sha, b"1234")
     with pytest.raises(ValueError, match="no 5-byte file"):
-        record_file(sha, 5)
-    file = record_file(sha, 4)
-    assert record_file(sha.upper(), 4) == file
+        register_stored_file(StoredFile(sha, 5))
+    file = register_stored_file(StoredFile(sha, 4))
+    assert register_stored_file(StoredFile(sha.upper(), 4)) == file
 
 
 def test_same_hash_with_another_size_is_refused(file_store):
-    from scene_pipelines.ingestion.files import record_file
+    from scene_pipelines.ingestion.files import StoredFile, register_stored_file
 
     sha = "f" * 64
     _place(file_store, sha, b"x" * 10)
-    record_file(sha, 10)
+    register_stored_file(StoredFile(sha, 10))
 
     _place(file_store, sha, b"x" * 11)
-    with pytest.raises(ValueError, match="recorded with 10 bytes"):
-        record_file(sha, 11)
+    with pytest.raises(ValueError, match="registered with 10 bytes"):
+        register_stored_file(StoredFile(sha, 11))
+
+
+def test_registration_joins_the_callers_transaction(file_store, tmp_path):
+    from scene_pipelines.ingestion.files import register_stored_file, store_file
+    from scene_pipelines.schemas.files.files import File
+
+    path = tmp_path / "t.bin"
+    path.write_bytes(b"stored, then registered with its modality row")
+    stored = store_file(path)
+    with pytest.raises(RuntimeError), File.connection.transaction:
+        register_stored_file(stored)
+        raise RuntimeError("the modality row failed")
+    assert not (File & {"file_sha256": stored.sha256})
+
+    assert register_stored_file(stored) == {"file_sha256": stored.sha256}
 
 
 def test_verify_file_detects_changed_bytes(file_store, tmp_path):

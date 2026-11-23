@@ -2,9 +2,11 @@
 
 from scene_pipelines.ingestion.files.files import (
     STORE_MARKER,
+    StoredFile,
     hash_file,
-    record_file,
     register_file,
+    register_stored_file,
+    store_file,
     verify_file,
 )
 from scene_pipelines.schemas.files.files import FILE_STORE, object_key
@@ -12,9 +14,11 @@ from scene_pipelines.schemas.files.files import FILE_STORE, object_key
 __all__ = [
     "FILE_STORE",
     "STORE_MARKER",
+    "StoredFile",
     "hash_file",
     "object_key",
-    "record_file",
     "register_file",
+    "register_stored_file",
+    "store_file",
     "verify_file",
 ]
