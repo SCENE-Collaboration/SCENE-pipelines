@@ -10,7 +10,7 @@ import datajoint as dj
 from datajoint.hash_registry import get_store_backend
 
 from scene_pipelines.ingestion.files.files import STORE_MARKER
-from scene_pipelines.schemas.files.files import FILE_STORE, File, object_key
+from scene_pipelines.schemas.files.files import FILE_STORE, FileContent, object_key
 
 _SAMPLE = 5
 _MARKER_CONTENT = json.dumps(
@@ -57,8 +57,8 @@ def init_file_store(*, new_copy: bool = False) -> None:
 
 
 def _some_recorded_files() -> list[str]:
-    """SHA-256 of a few recorded files."""
-    return [key["file_sha256"] for key in File.keys(limit=_SAMPLE)]
+    """SHA-256 of a few files whose bytes this database's store copy should hold."""
+    return [key["file_sha256"] for key in FileContent.keys(limit=_SAMPLE)]
 
 
 def _make_shared_folders(root: Path) -> None:

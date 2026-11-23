@@ -9,7 +9,7 @@ from scene_pipelines.core.access_markers import (
     sync_authority_of,
     write_role_of,
 )
-from scene_pipelines.schemas.files.files import File
+from scene_pipelines.schemas.files.files import File, FileContent
 from scene_pipelines.schemas.provenance.deployment import Deployment
 from scene_pipelines.schemas.provenance.row_meta import RowMetaBase
 from scene_pipelines.schemas.scene.lab import Lab
@@ -67,3 +67,8 @@ def test_unmarked_class_defaults():
 def test_file_contents_are_shared_and_unrestricted():
     assert sync_authority_of(File) is SyncAuthority.SHARED
     assert write_role_of(File) is None
+
+
+def test_file_content_stays_in_its_database():
+    assert sync_authority_of(FileContent) is SyncAuthority.NOSYNC
+    assert write_role_of(FileContent) is None

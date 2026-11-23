@@ -12,15 +12,16 @@ from datajoint.storage import StorageBackend
 from scene_pipelines.ingestion.files import (
     FILE_STORE,
     STORE_MARKER,
-    StoredFile,
+    FileHash,
     admin,
     hash_file,
     object_key,
     register_file,
+    register_file_hash,
     register_stored_file,
     store_file,
 )
-from scene_pipelines.schemas.files.files import File
+from scene_pipelines.schemas.files.files import File, FileContent
 
 
 def _disk_store(monkeypatch, root):
@@ -47,19 +48,30 @@ def test_object_key_is_derived_from_content():
     assert object_key(sha) == f"sha256/ab/{sha}"
 
 
-def test_file_content_is_a_reference_into_the_file_store():
-    assert f"<filepath@{FILE_STORE}>" in File.definition
+def test_only_file_content_references_the_store():
+    assert "<filepath@" not in File.definition
+    assert f"<filepath@{FILE_STORE}>" in FileContent.definition
 
 
+_REGISTER = [register_file_hash, register_stored_file]
+
+
+@pytest.mark.parametrize("register", _REGISTER)
 @pytest.mark.parametrize("sha", ["abc", "g" * 64, "a" * 65])
-def test_register_stored_file_rejects_malformed_hashes(sha):
+def test_registration_rejects_malformed_hashes(register, sha):
     with pytest.raises(ValueError, match="SHA-256"):
-        register_stored_file(StoredFile(sha, 1))
+        register(FileHash(sha, 1))
 
 
-def test_register_stored_file_rejects_negative_sizes():
+@pytest.mark.parametrize("register", _REGISTER)
+def test_registration_rejects_negative_sizes(register):
     with pytest.raises(ValueError, match="or size"):
-        register_stored_file(StoredFile("a" * 64, -1))
+        register(FileHash("a" * 64, -1))
+
+
+def test_register_file_by_hash_refuses_a_folder(tmp_path):
+    with pytest.raises(ValueError, match="not a file"):
+        register_file(tmp_path, store=False)
 
 
 def test_store_file_copies_without_the_database(monkeypatch, tmp_path):
@@ -72,7 +84,7 @@ def test_store_file_copies_without_the_database(monkeypatch, tmp_path):
     path.write_bytes(b"stored only")
 
     stored = store_file(path)
-    assert stored == StoredFile(*hash_file(path))
+    assert stored == hash_file(path)
     assert (store / object_key(stored.sha256)).read_bytes() == b"stored only"
 
 

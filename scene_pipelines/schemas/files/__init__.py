@@ -1,4 +1,4 @@
-"""SCENE shared files (``File``): bytes in the ``scene-files`` store, referenced by content.
+"""SCENE shared files: ``File`` (identity, by SHA-256) and ``FileContent`` (bytes in the store).
 
 DDL: ``FILES_SCHEMA_VERSION`` / ``SchemaVersion``.
 """

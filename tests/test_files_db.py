@@ -52,27 +52,27 @@ def _place(root, sha, data):
 
 def test_register_file_copies_and_records_once(file_store, tmp_path):
     from scene_pipelines.ingestion.files import object_key, register_file
-    from scene_pipelines.schemas.files.files import File
+    from scene_pipelines.schemas.files.files import File, FileContent
 
     path = tmp_path / "a.bin"
     path.write_bytes(b"register twice")
     file = register_file(path)
     assert register_file(path) == file
 
-    assert len(File & file) == 1
+    assert len(File & file) == len(FileContent & file) == 1
     assert (file_store / object_key(file["file_sha256"])).read_bytes() == b"register twice"
     assert path.exists()
 
 
 def test_content_reads_back_through_datajoint(file_store, tmp_path):
     from scene_pipelines.ingestion.files import register_file
-    from scene_pipelines.schemas.files.files import File
+    from scene_pipelines.schemas.files.files import FileContent
 
     path = tmp_path / "r.bin"
     path.write_bytes(b"read me back")
     file = register_file(path)
 
-    ref = (File & file).fetch1("content")
+    ref = (FileContent & file).fetch1("content")
     assert ref.read() == b"read me back"
     assert ref.download(tmp_path / "downloads").read_bytes() == b"read me back"
 
@@ -107,44 +107,69 @@ def test_init_file_store_refuses_a_place_without_the_recorded_files(
 
 
 def test_register_stored_file_checks_the_store(file_store):
-    from scene_pipelines.ingestion.files import StoredFile, register_stored_file
+    from scene_pipelines.ingestion.files import FileHash, register_stored_file
 
     sha = "e" * 64
     with pytest.raises(ValueError, match="no 4-byte file"):
-        register_stored_file(StoredFile(sha, 4))
+        register_stored_file(FileHash(sha, 4))
 
     _place(file_store, sha, b"1234")
     with pytest.raises(ValueError, match="no 5-byte file"):
-        register_stored_file(StoredFile(sha, 5))
-    file = register_stored_file(StoredFile(sha, 4))
-    assert register_stored_file(StoredFile(sha.upper(), 4)) == file
+        register_stored_file(FileHash(sha, 5))
+    file = register_stored_file(FileHash(sha, 4))
+    assert register_stored_file(FileHash(sha.upper(), 4)) == file
 
 
 def test_same_hash_with_another_size_is_refused(file_store):
-    from scene_pipelines.ingestion.files import StoredFile, register_stored_file
+    from scene_pipelines.ingestion.files import FileHash, register_stored_file
 
     sha = "f" * 64
     _place(file_store, sha, b"x" * 10)
-    register_stored_file(StoredFile(sha, 10))
+    register_stored_file(FileHash(sha, 10))
 
     _place(file_store, sha, b"x" * 11)
     with pytest.raises(ValueError, match="registered with 10 bytes"):
-        register_stored_file(StoredFile(sha, 11))
+        register_stored_file(FileHash(sha, 11))
 
 
 def test_registration_joins_the_callers_transaction(file_store, tmp_path):
     from scene_pipelines.ingestion.files import register_stored_file, store_file
-    from scene_pipelines.schemas.files.files import File
+    from scene_pipelines.schemas.files.files import File, FileContent
 
     path = tmp_path / "t.bin"
     path.write_bytes(b"stored, then registered with its modality row")
     stored = store_file(path)
+    file = {"file_sha256": stored.sha256}
     with pytest.raises(RuntimeError), File.connection.transaction:
         register_stored_file(stored)
         raise RuntimeError("the modality row failed")
-    assert not (File & {"file_sha256": stored.sha256})
+    assert not (File & file) and not (FileContent & file)
 
-    assert register_stored_file(stored) == {"file_sha256": stored.sha256}
+    assert register_stored_file(stored) == file
+
+
+def test_a_file_registered_by_hash_has_no_content(dj_connection, tmp_path):
+    from scene_pipelines.ingestion.files import register_file, verify_file
+    from scene_pipelines.schemas.files.files import File, FileContent
+
+    path = tmp_path / "kept-elsewhere.bin"
+    path.write_bytes(b"stays on the acquisition machine")
+    file = register_file(path, store=False)  # no store configured or needed
+
+    assert len(File & file) == 1 and not (FileContent & file)
+    with pytest.raises(ValueError, match="no content"):
+        verify_file(file)
+
+
+def test_a_file_registered_by_hash_can_be_stored_later(file_store, tmp_path):
+    from scene_pipelines.ingestion.files import register_file
+    from scene_pipelines.schemas.files.files import FileContent
+
+    path = tmp_path / "later.bin"
+    path.write_bytes(b"hash first, bytes later")
+    file = register_file(path, store=False)
+    assert register_file(path) == file
+    assert len(FileContent & file) == 1
 
 
 def test_verify_file_detects_changed_bytes(file_store, tmp_path):

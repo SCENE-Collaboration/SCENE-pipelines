@@ -1,9 +1,14 @@
 # File store
 
-The bytes of every [`File`][scene_pipelines.schemas.files.files.File] live in a DataJoint store named
-`scene-files`, outside the database, at `sha256/<first two hex digits>/<sha256>`. Each machine maps that name
-to its own copy in `dj.config["stores"]`; see [`scene_pipelines.ingestion.files.files`][scene_pipelines.ingestion.files.files]
-for the configuration.
+A [`File`][scene_pipelines.schemas.files.files.File] row is a file's identity (SHA-256 and size), shared by every
+database. Where a deployment keeps the bytes, they live in a DataJoint store named `scene-files`, outside the
+database, at `sha256/<first two hex digits>/<sha256>`, and a
+[`FileContent`][scene_pipelines.schemas.files.files.FileContent] row in that deployment's database says so. Files
+whose bytes stay elsewhere (an acquisition machine, an external archive) are registered by hash only:
+`register_file(path, store=False)`.
+
+Each machine maps the store name to its own copy in `dj.config["stores"]`; see
+[`scene_pipelines.ingestion.files.files`][scene_pipelines.ingestion.files.files] for the configuration.
 
 ## Prepare a copy
 
@@ -18,8 +23,8 @@ admin.init_file_store()  # a copy that already holds this database's files, or a
 admin.init_file_store(new_copy=True)  # a new, empty copy that a transfer job will fill
 ```
 
-It refuses a copy that is already prepared, and a place that holds none of a few files the database records
-(not mounted, or a wrong location). Never call it from an ingestion script.
+It refuses a copy that is already prepared, and a place that holds none of a few files whose content the database
+records (not mounted, or a wrong location). Never call it from an ingestion script.
 
 ## On disk
 
@@ -53,8 +58,9 @@ database. Clients need `pip install "scene-pipelines[s3]"`.
 ## Copies and sync
 
 - Keep copies in step with `rclone copy --checksum`, never `rclone sync`: files are never deleted.
-- Bytes before rows: a database that receives `File` rows reads them from its own copy, so the transfer must
-  finish before the rows are synced.
+- `File` rows sync everywhere; `FileContent` rows never sync (`SyncAuthority.NOSYNC`). After copying bytes into
+  another deployment's store, register them there with `register_stored_file`; until then that database knows the
+  file but holds no content for it.
 - DataJoint's garbage collector never touches this store; nothing deletes from it.
 - Audit now and then with [`verify_file`][scene_pipelines.ingestion.files.files.verify_file], which re-reads a
   file and checks its SHA-256.
