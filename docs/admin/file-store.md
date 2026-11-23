@@ -14,7 +14,7 @@ store without it.
 ```python
 from scene_pipelines.ingestion.files import admin
 
-admin.init_file_store()               # a copy that already holds this database's files, or an empty database
+admin.init_file_store()  # a copy that already holds this database's files, or an empty database
 admin.init_file_store(new_copy=True)  # a new, empty copy that a transfer job will fill
 ```
 
