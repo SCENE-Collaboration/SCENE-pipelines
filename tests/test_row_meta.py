@@ -11,7 +11,12 @@ from scene_pipelines.schemas.provenance.row_meta import (
     SessionRowMeta,
     SubjectRowMeta,
 )
-from scene_pipelines.schemas.video.row_meta import VideoFileRowMeta, VideoRecordingRowMeta
+from scene_pipelines.schemas.video.row_meta import (
+    ProcessedVideoRowMeta,
+    VideoFileRowMeta,
+    VideoRecordingRowMeta,
+    VideoTransformRowMeta,
+)
 
 _STAMP_COLUMNS = (
     "-> Deployment",
@@ -47,6 +52,8 @@ def test_row_meta_subclasses_match_tracked_masters() -> None:
         StrainRowMeta,
         VideoFileRowMeta,
         VideoRecordingRowMeta,
+        VideoTransformRowMeta,
+        ProcessedVideoRowMeta,
     }
     assert LabRowMeta.tracked_table.__name__ == "Lab"
     assert SubjectRowMeta.tracked_table.__name__ == "Subject"
@@ -56,6 +63,8 @@ def test_row_meta_subclasses_match_tracked_masters() -> None:
     assert StrainRowMeta.tracked_table.__name__ == "Strain"
     assert VideoFileRowMeta.tracked_table.__name__ == "VideoFile"
     assert VideoRecordingRowMeta.tracked_table.__name__ == "VideoRecording"
+    assert VideoTransformRowMeta.tracked_table.__name__ == "VideoTransform"
+    assert ProcessedVideoRowMeta.tracked_table.__name__ == "ProcessedVideo"
 
 
 def test_definition_is_built_from_tracked_table_and_shared_attrs() -> None:
