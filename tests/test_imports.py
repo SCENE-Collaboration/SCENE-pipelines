@@ -67,3 +67,8 @@ def test_import_video_processing_module(dj_connection):
 def test_import_dlc_project_module(dj_connection):
     module = importlib.import_module("scene_pipelines.schemas.dlc.project")
     assert module is not None
+
+
+def test_import_dlc_pose_module(dj_connection):
+    module = importlib.import_module("scene_pipelines.schemas.dlc.pose")
+    assert module is not None
