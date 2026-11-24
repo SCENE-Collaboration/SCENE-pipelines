@@ -47,3 +47,8 @@ def test_import_row_meta_module(dj_connection):
 def test_import_files_module(dj_connection):
     module = importlib.import_module("scene_pipelines.schemas.files.files")
     assert module is not None
+
+
+def test_import_video_module(dj_connection):
+    module = importlib.import_module("scene_pipelines.schemas.video.video")
+    assert module is not None
