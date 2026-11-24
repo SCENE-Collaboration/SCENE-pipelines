@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+from scene_pipelines.schemas.dlc.row_meta import DlcProjectRowMeta, ProjectConfigRowMeta
 from scene_pipelines.schemas.mouse.row_meta import MouseRowMeta, StrainRowMeta
 from scene_pipelines.schemas.provenance.row_meta import (
     LabRowMeta,
@@ -54,6 +55,8 @@ def test_row_meta_subclasses_match_tracked_masters() -> None:
         VideoRecordingRowMeta,
         VideoTransformRowMeta,
         ProcessedVideoRowMeta,
+        DlcProjectRowMeta,
+        ProjectConfigRowMeta,
     }
     assert LabRowMeta.tracked_table.__name__ == "Lab"
     assert SubjectRowMeta.tracked_table.__name__ == "Subject"
@@ -65,6 +68,8 @@ def test_row_meta_subclasses_match_tracked_masters() -> None:
     assert VideoRecordingRowMeta.tracked_table.__name__ == "VideoRecording"
     assert VideoTransformRowMeta.tracked_table.__name__ == "VideoTransform"
     assert ProcessedVideoRowMeta.tracked_table.__name__ == "ProcessedVideo"
+    assert DlcProjectRowMeta.tracked_table.__name__ == "DlcProject"
+    assert ProjectConfigRowMeta.tracked_table.__name__ == "ProjectConfig"
 
 
 def test_definition_is_built_from_tracked_table_and_shared_attrs() -> None:
