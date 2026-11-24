@@ -1,4 +1,4 @@
-"""SCENE shared video tables (VideoFile, Camera, VideoRecording).
+"""SCENE shared video tables (VideoFile, Camera, VideoRecording, VideoTransform, ProcessedVideo).
 
 DDL: ``VIDEO_SCHEMA_VERSION`` / ``SchemaVersion``.
 """

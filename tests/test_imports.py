@@ -57,3 +57,8 @@ def test_import_video_module(dj_connection):
 def test_import_video_recording_module(dj_connection):
     module = importlib.import_module("scene_pipelines.schemas.video.recording")
     assert module is not None
+
+
+def test_import_video_processing_module(dj_connection):
+    module = importlib.import_module("scene_pipelines.schemas.video.processing")
+    assert module is not None
