@@ -1,4 +1,4 @@
-"""SCENE shared DeepLabCut tables (DlcProject, ProjectConfig).
+"""SCENE shared DeepLabCut tables (DlcProject, ProjectConfig, Pose).
 
 DDL: ``DLC_SCHEMA_VERSION`` / ``SchemaVersion``.
 """
