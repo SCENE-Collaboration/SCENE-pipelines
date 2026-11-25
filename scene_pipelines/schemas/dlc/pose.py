@@ -26,7 +26,11 @@ class Pose(dj.Manual):
     """
 
     class Keypoint(dj.Part):
-        """One keypoint over all frames, in the source's column order."""
+        """One keypoint over all frames, in the source's column order.
+
+        MySQL treats nulls as distinct, so the unique index does not catch a repeated
+        single-animal bodypart; ``read_pose_file`` refuses repeated columns.
+        """
 
         definition = """
         -> master
