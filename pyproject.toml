@@ -22,12 +22,12 @@ video = [
     "opencv-python-headless>=4.5",  # register_video reads fps, size and frame count
 ]
 dlc = [
-    "pandas[hdf5,performance]>=2.0",  # register_pose reads DeepLabCut .h5 and frame times
+    "pandas[hdf5]>=2.0",  # register_pose reads DeepLabCut .h5 and frame times
     "ruamel.yaml>=0.17",  # register_project_config reads config.yaml
 ]
 dev = [
     "opencv-python-headless>=4.5",  # the video tests
-    "pandas[hdf5,performance]>=2.0",  # the dlc tests
+    "pandas[hdf5]>=2.0",  # the dlc tests
     "pre-commit>=3.5",
     "pytest>=7",
     "ruamel.yaml>=0.17",  # the dlc tests
