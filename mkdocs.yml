@@ -101,6 +101,7 @@ nav:
       - Notebooks:
           - Getting started: tutorials/01_getting_started.ipynb
           - Migrate existing pipeline: tutorials/02_mlai_mouse_ar.ipynb
+          - Onboarding a lab with DeepLabCut: tutorials/03_scene_onboarding_demo.ipynb
   - Guides:
       - Setup and configuration: guides/setup.md
       - Writing data: guides/writing-data.md

@@ -21,7 +21,8 @@ The documentation is built from [`docs/`](docs/) with MkDocs. Good places to sta
 - [Development](docs/development.md): tests and building the documentation.
 
 [An existing lab: MLAI and MouseAR](examples/tutorials/02_mlai_mouse_ar.ipynb) shows a real lab pipeline (Mathis lab,
-Mouse AR) on the shared tables.
+Mouse AR) on the shared tables, and [Onboarding a lab with DeepLabCut](examples/tutorials/03_scene_onboarding_demo.ipynb)
+puts a lab's DeepLabCut data on the shared `video` and `dlc` tables, end to end.
 
 ## Quickstart
 
