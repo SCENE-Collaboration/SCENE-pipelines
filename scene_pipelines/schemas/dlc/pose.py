@@ -15,7 +15,7 @@ class Pose(dj.Manual):
     """Keypoint positions over a recording; write with ``register_pose``."""
 
     definition = """
-    pose_id: uuid
+    pose_id: uuid  # from the file's SHA-256 when read from one
     ---
     -> [nullable] File  # the DeepLabCut output .h5 it was read from, if any
     scorer: varchar(255)  # model name in the .h5; DLC_live for DLC-live

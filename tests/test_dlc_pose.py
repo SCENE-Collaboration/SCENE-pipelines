@@ -176,3 +176,11 @@ def test_keypoint_parts_keep_column_order(tmp_path):
 def test_pose_tables_are_acquired_origin_data(table):
     assert sync_authority_of(table) is SyncAuthority.ORIGIN
     assert write_role_of(table) is WriteRole.ACQUISITION
+
+
+def test_pose_id_follows_from_the_file():
+    file = {"file_sha256": "a" * 64}
+    assert pose_module.pose_id_of_file(file) == pose_module.pose_id_of_file(dict(file))
+    assert pose_module.pose_id_of_file(file) != pose_module.pose_id_of_file(
+        {"file_sha256": "b" * 64}
+    )
