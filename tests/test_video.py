@@ -67,8 +67,8 @@ def test_register_video_writes_nothing_for_an_unreadable_video(tmp_path, monkeyp
         video_module.register_video(tmp_path / "v.avi")
 
 
-def test_video_file_is_acquired_origin_data_and_stamped():
-    assert sync_authority_of(VideoFile) is SyncAuthority.ORIGIN
+def test_video_file_is_acquired_shared_data_and_stamped():
+    assert sync_authority_of(VideoFile) is SyncAuthority.SHARED
     assert write_role_of(VideoFile) is WriteRole.ACQUISITION
     assert VideoFileRowMeta.tracked_table is VideoFile
 
