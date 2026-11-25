@@ -49,21 +49,20 @@ def register_dlc_project(
     code = normalize_code(dlc_project_code, field="dlc_project_code", max_length=128)
     deployment_row = deployment if deployment is not None else deployment_row_from_settings()
 
+    project_name = scene_project["project_name"] if scene_project else None
+
     with atomic(DlcProject.connection):
         existing = lookup_key(DlcProject, {**lab, "dlc_project_code": code})
         row = {
             **lab,
             "dlc_project_id": existing["dlc_project_id"] if existing else new_id(),
             "dlc_project_code": code,
-            **(scene_project or {}),
+            "project_name": project_name,
         }
         return insert_tracked_row(
             DlcProjectRowMeta,
             row,
-            payload={
-                "dlc_project_code": code,
-                "project_name": (scene_project or {}).get("project_name"),
-            },
+            payload={"dlc_project_code": code, "project_name": project_name},
             deployment=deployment_row,
             if_exists=if_exists,
             writer_version=DLC_WRITER_VERSION,
