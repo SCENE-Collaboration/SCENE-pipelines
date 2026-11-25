@@ -9,6 +9,7 @@ from scene_pipelines.schemas.video._schema import schema
 from scene_pipelines.schemas.video.video import VideoFile  # noqa: F401  # FK: VideoRecording
 
 
+@mark_write_role(WriteRole.ACQUISITION)
 @schema
 class Camera(dj.Manual):
     """A camera or view, known by a code within one lab."""
