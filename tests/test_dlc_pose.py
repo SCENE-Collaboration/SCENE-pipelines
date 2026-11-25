@@ -112,6 +112,15 @@ def test_read_pose_refuses_what_is_no_pose_file(tmp_path, frame, message):
         read_pose_file(write_pose(tmp_path / "pose.h5", frame))
 
 
+def test_read_pose_refuses_a_repeated_bodypart(tmp_path, monkeypatch):
+    frame = pd.concat([pose_frame(), pose_frame(bodyparts=["nose"])], axis=1)
+    path = tmp_path / "pose.h5"
+    path.write_bytes(b"")
+    monkeypatch.setattr(pd, "read_hdf", lambda path: frame)  # fixed-format .h5 cannot hold it
+    with pytest.raises(ValueError, match="repeated columns"):
+        read_pose_file(path)
+
+
 def test_read_pose_refuses_a_missing_file(tmp_path):
     with pytest.raises(ValueError, match="not a file"):
         read_pose_file(tmp_path / "pose.h5")
