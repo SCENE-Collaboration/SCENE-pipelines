@@ -14,6 +14,11 @@ SESSION = {"session_id": "00000000-0000-0000-0000-000000000001"}
 CAMERA = {"lab_id": "lab", "camera_code": "top"}
 
 
+def test_ensure_camera_refuses_an_invalid_code():
+    with pytest.raises(ValueError, match="camera_code"):
+        recording_module.ensure_camera("top view", lab={"lab_id": "lab"})
+
+
 @pytest.mark.parametrize(
     ("kwargs", "message"),
     [

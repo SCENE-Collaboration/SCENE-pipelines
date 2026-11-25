@@ -12,7 +12,7 @@ from scene_pipelines.schemas.video.video import VideoFile  # noqa: F401  # FK: V
 @mark_write_role(WriteRole.ACQUISITION)
 @schema
 class Camera(dj.Manual):
-    """A camera or view, known by a code within one lab."""
+    """A camera or view, known by a code within one lab; write with ``ensure_camera``."""
 
     definition = """
     -> Lab

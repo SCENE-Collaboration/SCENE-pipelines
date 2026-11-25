@@ -4,7 +4,7 @@ from scene_pipelines.schemas.provenance.deployment import Deployment  # noqa: F4
 from scene_pipelines.schemas.provenance.row_meta import RowMetaBase
 from scene_pipelines.schemas.video._schema import schema
 from scene_pipelines.schemas.video.processing import ProcessedVideo, VideoTransform
-from scene_pipelines.schemas.video.recording import VideoRecording
+from scene_pipelines.schemas.video.recording import Camera, VideoRecording
 from scene_pipelines.schemas.video.video import VideoFile
 
 
@@ -13,6 +13,14 @@ class VideoFileRowMeta(RowMetaBase):
     """Provenance for one ``VideoFile`` row."""
 
     tracked_table = VideoFile
+    definition = RowMetaBase.build_definition(tracked_table)
+
+
+@schema
+class CameraRowMeta(RowMetaBase):
+    """Provenance for one ``Camera`` row."""
+
+    tracked_table = Camera
     definition = RowMetaBase.build_definition(tracked_table)
 
 
