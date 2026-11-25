@@ -29,7 +29,7 @@ class Pose(dj.Manual):
         """One keypoint over all frames, in the source's column order.
 
         MySQL treats nulls as distinct, so the unique index does not catch a repeated
-        single-animal bodypart; ``read_pose_file`` refuses repeated columns.
+        single-animal bodypart; ``register_pose`` refuses one.
         """
 
         definition = """

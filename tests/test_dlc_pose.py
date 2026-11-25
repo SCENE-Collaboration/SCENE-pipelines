@@ -1,6 +1,7 @@
 """Unit tests for the pose reader and register_pose (no database)."""
 
 import sys
+from dataclasses import replace
 
 import numpy as np
 import pytest
@@ -112,13 +113,11 @@ def test_read_pose_refuses_what_is_no_pose_file(tmp_path, frame, message):
         read_pose_file(write_pose(tmp_path / "pose.h5", frame))
 
 
-def test_read_pose_refuses_a_repeated_bodypart(tmp_path, monkeypatch):
-    frame = pd.concat([pose_frame(), pose_frame(bodyparts=["nose"])], axis=1)
-    path = tmp_path / "pose.h5"
-    path.write_bytes(b"")
-    monkeypatch.setattr(pd, "read_hdf", lambda path: frame)  # fixed-format .h5 cannot hold it
-    with pytest.raises(ValueError, match="repeated columns"):
-        read_pose_file(path)
+def test_keypoint_parts_refuse_a_repeated_single_animal_bodypart(tmp_path):
+    record = read_pose_file(write_pose(tmp_path / "pose.h5"))
+    repeated = replace(record, keypoints=(*record.keypoints, record.keypoints[0]))
+    with pytest.raises(ValueError, match=r"repeated keypoints .*\(None, 'nose'\)"):
+        pose_module._keypoint_parts(repeated)
 
 
 def test_read_pose_refuses_a_missing_file(tmp_path):

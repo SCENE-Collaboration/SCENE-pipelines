@@ -67,11 +67,12 @@ def register_pose(
 
     Raises:
         ImportError: If pandas or PyTables is not installed (``scene-pipelines[dlc]``).
-        ValueError: If ``path`` is not a DeepLabCut pose file, ``frame_times`` does not match
-            it, the store is unusable, ``deployment`` is omitted and ``SCENE_DEPLOYMENT_ID``
-            is unset, or ``if_exists`` rejects an existing row.
+        ValueError: If ``path`` is not a DeepLabCut pose file, a keypoint repeats,
+            ``frame_times`` does not match it, the store is unusable, ``deployment`` is omitted
+            and ``SCENE_DEPLOYMENT_ID`` is unset, or ``if_exists`` rejects an existing row.
     """
     record = read_pose_file(path)
+    parts = _keypoint_parts(record)
     times = None if frame_times is None else read_frame_times(frame_times, n_frames=record.n_frames)
     deployment_row = deployment if deployment is not None else deployment_row_from_settings()
     file = register_file(path, store=store)
@@ -91,7 +92,6 @@ def register_pose(
     with atomic(Pose.connection):
         row = {"pose_id": pose_id_of_file(file), **fields}
         payload = {**file, **_payload(record, times)}
-        parts = _keypoint_parts(record)
         pose = insert_tracked_row(PoseRowMeta, row, payload=payload, parts=parts, **stamp)
         if dlc_project is not None:
             project = {k: dlc_project[k] for k in ("lab_id", "dlc_project_id")}
@@ -108,7 +108,14 @@ def pose_id_of_file(file: DjKey[File]) -> uuid.UUID:
 
 
 def _keypoint_parts(record: PoseRecord) -> dict:
-    """Part rows of ``Pose``, in the file's column order."""
+    """Part rows of ``Pose``, in the file's column order; refuses a repeated keypoint.
+
+    The unique index cannot: a single-animal keypoint has no individual, and nulls are distinct.
+    """
+    names = [(k.individual, k.bodypart) for k in record.keypoints]
+    repeated = sorted({n for n in names if names.count(n) > 1}, key=str)
+    if repeated:
+        raise ValueError(f"repeated keypoints (individual, bodypart): {repeated}")
     return {
         Pose.Keypoint: [
             {
