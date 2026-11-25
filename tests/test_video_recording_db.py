@@ -50,11 +50,9 @@ def session(lab):
 @pytest.fixture
 def camera(lab):
     """The lab's ``top`` camera."""
-    from scene_pipelines.schemas.video.recording import Camera
+    from scene_pipelines.ingestion.video import ensure_camera
 
-    key = {**lab, "camera_code": "top"}
-    Camera.insert1({**key, "camera_details": "top view"}, skip_duplicates=True)
-    return key
+    return ensure_camera("top", lab=lab, camera_details="top view")
 
 
 def test_register_video_recording_links_video_to_session(session, camera, tmp_path):

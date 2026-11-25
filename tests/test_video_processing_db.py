@@ -42,11 +42,9 @@ def lab(dj_connection, monkeypatch):
 def recording(lab, tmp_path):
     """A new recording of the lab's ``top`` camera."""
     from scene_pipelines.ingestion import register_session
-    from scene_pipelines.ingestion.video import register_video_recording
-    from scene_pipelines.schemas.video.recording import Camera
+    from scene_pipelines.ingestion.video import ensure_camera, register_video_recording
 
-    camera = {**lab, "camera_code": "top"}
-    Camera.insert1(camera, skip_duplicates=True)
+    camera = ensure_camera("top", lab=lab, camera_details="top view")
     session = register_session(f"video-{uuid.uuid4().hex[:12]}", date(2026, 11, 24), lab=lab)
     path = write_video(tmp_path / f"{uuid.uuid4().hex}.avi", n_frames=6)
     return register_video_recording(path, session=session, camera=camera)
