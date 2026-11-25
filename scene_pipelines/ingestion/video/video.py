@@ -8,8 +8,12 @@ from scene_pipelines.core.config import deployment_row_from_settings
 from scene_pipelines.core.types import DjKey, DjRow
 from scene_pipelines.ingestion.files import register_file
 from scene_pipelines.ingestion.provenance.row_meta import DuplicatePolicy, insert_tracked_row
-from scene_pipelines.ingestion.video._transient.metadata import read_video_metadata
+from scene_pipelines.ingestion.video._transient.metadata import (
+    VideoMetadata,
+    read_video_metadata,
+)
 from scene_pipelines.ingestion.video._version import VIDEO_WRITER_VERSION
+from scene_pipelines.schemas.files.files import File
 from scene_pipelines.schemas.provenance.deployment import Deployment
 from scene_pipelines.schemas.video.row_meta import VideoFileRowMeta
 from scene_pipelines.schemas.video.video import VideoFile
@@ -43,11 +47,22 @@ def register_video(
     metadata = read_video_metadata(path)
     deployment_row = deployment if deployment is not None else deployment_row_from_settings()
     file = register_file(path, store=store)
+    return insert_video_file(file, metadata, deployment=deployment_row, if_exists=if_exists)
+
+
+def insert_video_file(
+    file: DjKey[File],
+    metadata: VideoMetadata,
+    *,
+    deployment: DjRow[Deployment],
+    if_exists: DuplicatePolicy = DuplicatePolicy.SKIP,
+) -> DjKey[VideoFile]:
+    """Write the ``VideoFile`` row of a registered ``File``, in the caller's transaction if any."""
     return insert_tracked_row(
         VideoFileRowMeta,
         {**file, **metadata._asdict()},
         payload=metadata._asdict(),
-        deployment=deployment_row,
+        deployment=deployment,
         if_exists=if_exists,
         writer_version=VIDEO_WRITER_VERSION,
     )

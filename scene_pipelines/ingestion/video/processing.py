@@ -6,11 +6,14 @@ from pathlib import Path
 from typing import Any
 
 from scene_pipelines.core.config import deployment_row_from_settings
+from scene_pipelines.core.db import atomic
 from scene_pipelines.core.types import DjKey, DjRow
+from scene_pipelines.ingestion.files import register_file
 from scene_pipelines.ingestion.normalization.code import normalize_code
 from scene_pipelines.ingestion.provenance.row_meta import DuplicatePolicy, insert_tracked_row
+from scene_pipelines.ingestion.video._transient.metadata import read_video_metadata
 from scene_pipelines.ingestion.video._version import VIDEO_WRITER_VERSION
-from scene_pipelines.ingestion.video.video import register_video
+from scene_pipelines.ingestion.video.video import insert_video_file
 from scene_pipelines.schemas.provenance.deployment import Deployment
 from scene_pipelines.schemas.scene.lab import Lab
 from scene_pipelines.schemas.video.processing import ProcessedVideo, VideoTransform
@@ -70,6 +73,9 @@ def register_processed_video(
 ) -> DjKey[ProcessedVideo]:
     """Register the video a transform made from a recording: its ``VideoFile`` and the link.
 
+    The file is registered first (its upload cannot be rolled back); ``VideoFile`` and
+    ``ProcessedVideo`` are then written in one transaction.
+
     Args:
         path: The processed video, a local file.
         recording: Existing ``VideoRecording`` key.
@@ -93,14 +99,17 @@ def register_processed_video(
             f"transform {transform['transform_code']!r} is of lab {transform['lab_id']!r}, "
             f"the recording of lab {recording['lab_id']!r}"
         )
+    metadata = read_video_metadata(path)
     deployment_row = deployment if deployment is not None else deployment_row_from_settings()
-    video = register_video(path, store=store, deployment=deployment_row)
+    file = register_file(path, store=store)
     key = {**recording, "transform_code": transform["transform_code"]}
-    return insert_tracked_row(
-        ProcessedVideoRowMeta,
-        {**key, **video},
-        payload=video,
-        deployment=deployment_row,
-        if_exists=if_exists,
-        writer_version=VIDEO_WRITER_VERSION,
-    )
+    with atomic(ProcessedVideo.connection):
+        insert_video_file(file, metadata, deployment=deployment_row)
+        return insert_tracked_row(
+            ProcessedVideoRowMeta,
+            {**key, **file},
+            payload=file,
+            deployment=deployment_row,
+            if_exists=if_exists,
+            writer_version=VIDEO_WRITER_VERSION,
+        )

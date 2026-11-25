@@ -106,6 +106,41 @@ def test_register_video_recording_verifies_a_registered_take(session, camera, tm
     assert second["take"] == 2
 
 
+def test_register_video_recording_warns_when_timestamps_miss_frames(session, camera, tmp_path):
+    from scene_pipelines.ingestion.video import register_video_recording
+
+    path = write_video(tmp_path / f"{uuid.uuid4().hex}.avi", n_frames=4)
+    with pytest.warns(UserWarning, match="3 frame_timestamps for a video of 4 frames"):
+        register_video_recording(path, session=session, camera=camera, frame_timestamps=[0, 1, 2])
+
+
+def test_register_video_recording_refuses_an_unknown_session(camera, tmp_path):
+    from scene_pipelines.ingestion.video import register_video_recording
+    from scene_pipelines.schemas.files.files import File
+
+    path = write_video(tmp_path / f"{uuid.uuid4().hex}.avi", n_frames=4)
+    with pytest.raises(ValueError, match="no session"):
+        register_video_recording(path, session={"session_id": uuid.uuid4()}, camera=camera)
+    assert not (File & {"file_sha256": _sha256(path)})
+
+
+def test_register_video_recording_keeps_the_file_when_the_recording_is_refused(
+    session, camera, tmp_path
+):
+    from scene_pipelines.ingestion.video import register_video_recording
+    from scene_pipelines.schemas.files.files import File
+    from scene_pipelines.schemas.video.video import VideoFile
+
+    first = write_video(tmp_path / f"{uuid.uuid4().hex}.avi", n_frames=3)
+    other = write_video(tmp_path / f"{uuid.uuid4().hex}.avi", n_frames=5)
+    register_video_recording(first, session=session, camera=camera)
+    with pytest.raises(ValueError, match="different content hash"):
+        register_video_recording(other, session=session, camera=camera)
+    other_file = {"file_sha256": _sha256(other)}
+    assert File & other_file
+    assert not (VideoFile & other_file)  # rolled back with the refused recording
+
+
 def test_register_video_recording_refuses_a_camera_of_another_lab(session, tmp_path):
     from scene_pipelines.ingestion.video import register_video_recording
 
@@ -115,3 +150,9 @@ def test_register_video_recording_refuses_a_camera_of_another_lab(session, tmp_p
             session=session,
             camera={"lab_id": "elsewhere", "camera_code": "top"},
         )
+
+
+def _sha256(path):
+    from scene_pipelines.ingestion.files import hash_file
+
+    return hash_file(path).sha256
