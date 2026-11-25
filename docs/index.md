@@ -25,6 +25,7 @@ links the two by key.
 |---|---|
 | [`scene_pipelines.schemas`][scene_pipelines.schemas] | table definitions: `scene` (lab, project, subject, session), `mouse`, `provenance` |
 | [`scene_pipelines.ingestion`][scene_pipelines.ingestion] | the helpers that write to the shared tables (`register_session`, …), in packages that mirror the schemas |
+| [`scene_pipelines.query`][scene_pipelines.query] | the helpers that read stored data back (`keypoint`, `pose_dataframe`, …), one module per schema |
 | [`scene_pipelines.core`][scene_pipelines.core] | the schema registry, settings, transactions, versioning and table markers |
 
 SCENE pipelines was migrated with full history from

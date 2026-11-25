@@ -43,9 +43,10 @@ def new_pose_file(path, **kwargs):
 
 
 def test_register_pose_stores_keypoints_once(lab, tmp_path):
-    from scene_pipelines.ingestion.dlc import keypoint, pose_array, pose_dataframe, register_pose
+    from scene_pipelines.ingestion.dlc import register_pose
     from scene_pipelines.ingestion.dlc._transient.poses import read_pose_file
     from scene_pipelines.ingestion.files import hash_file
+    from scene_pipelines.query.dlc import keypoint, pose_array, pose_dataframe
     from scene_pipelines.schemas.dlc.pose import Pose
     from scene_pipelines.schemas.dlc.row_meta import PoseRowMeta
 
@@ -72,7 +73,8 @@ def test_register_pose_stores_keypoints_once(lab, tmp_path):
 
 
 def test_register_multi_animal_pose_reads_back(lab, tmp_path):
-    from scene_pipelines.ingestion.dlc import keypoint, pose_dataframe, register_pose
+    from scene_pipelines.ingestion.dlc import register_pose
+    from scene_pipelines.query.dlc import keypoint, pose_dataframe
 
     path = new_pose_file(tmp_path / "pose.h5", individuals=["mouse1", "mouse2"])
     pose = register_pose(path)
