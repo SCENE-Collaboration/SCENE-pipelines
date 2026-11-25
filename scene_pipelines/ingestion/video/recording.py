@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import warnings
 from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
@@ -12,10 +13,12 @@ import numpy as np
 from scene_pipelines.core.config import deployment_row_from_settings
 from scene_pipelines.core.db import atomic
 from scene_pipelines.core.types import DjKey, DjRow
+from scene_pipelines.ingestion.files import register_file
 from scene_pipelines.ingestion.normalization.code import normalize_code
 from scene_pipelines.ingestion.provenance.row_meta import DuplicatePolicy, insert_tracked_row
+from scene_pipelines.ingestion.video._transient.metadata import read_video_metadata
 from scene_pipelines.ingestion.video._version import VIDEO_WRITER_VERSION
-from scene_pipelines.ingestion.video.video import register_video
+from scene_pipelines.ingestion.video.video import insert_video_file
 from scene_pipelines.schemas.provenance.deployment import Deployment
 from scene_pipelines.schemas.scene.lab import Lab
 from scene_pipelines.schemas.scene.session import Session
@@ -75,6 +78,10 @@ def register_video_recording(
 ) -> DjKey[VideoRecording]:
     """Register a video recorded in a session: its ``VideoFile`` and the recording.
 
+    The file is registered first (its upload cannot be rolled back); ``VideoFile`` and the
+    recording are then written in one transaction. Warns when the number of
+    ``frame_timestamps`` differs from the frame count OpenCV reports.
+
     Args:
         path: A local video file.
         session: Existing ``Session`` key.
@@ -92,31 +99,42 @@ def register_video_recording(
 
     Raises:
         ImportError: If OpenCV is not installed (``scene-pipelines[video]``).
-        ValueError: If ``take`` is below 1, ``frame_timestamps`` are not finite, the camera
-            belongs to another lab than the session, the video is unreadable, or
-            ``if_exists`` rejects the existing row.
+        ValueError: If ``take`` is below 1, ``frame_timestamps`` are not finite, the session
+            is not registered, the camera belongs to another lab than the session, the
+            video is unreadable, or ``if_exists`` rejects the existing row.
     """
     if take < 1:
         raise ValueError(f"take must be 1 or more, not {take}")
     times = None if frame_timestamps is None else _timestamps(frame_timestamps)
     deployment_row = deployment if deployment is not None else deployment_row_from_settings()
-    session_lab = (Session & session).fetch1("lab_id")
+    matches = Session & {"session_id": session["session_id"]}
+    if not matches:
+        raise ValueError(f"no session {session['session_id']}")
+    session_lab = matches.fetch1("lab_id")
     if camera["lab_id"] != session_lab:
         raise ValueError(
             f"camera {camera['camera_code']!r} is of lab {camera['lab_id']!r}, "
             f"the session of lab {session_lab!r}"
         )
+    metadata = read_video_metadata(path)
+    if times is not None and len(times) != metadata.n_frames:
+        warnings.warn(
+            f"{len(times)} frame_timestamps for a video of {metadata.n_frames} frames "
+            "(as OpenCV counts them)",
+            stacklevel=2,
+        )
 
-    video = register_video(path, store=store, deployment=deployment_row)
+    file = register_file(path, store=store)
     key = {"session_id": session["session_id"], **camera, "take": take}
-    row = {**key, **video, "start_time": start_time}
+    row = {**key, **file, "start_time": start_time}
     payload = {
-        "file_sha256": video["file_sha256"],
+        "file_sha256": file["file_sha256"],
         "start_time": start_time,
         "frame_timestamps": None if times is None else _sha256(times),
     }
     parts = {VideoRecording.FrameTimestamps: [] if times is None else [{"frame_timestamps": times}]}
     with atomic(VideoRecording.connection):
+        insert_video_file(file, metadata, deployment=deployment_row)
         return insert_tracked_row(
             VideoRecordingRowMeta,
             row,
