@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import hashlib
+import uuid
 from collections.abc import Sequence
 from pathlib import Path
 
 import numpy as np
 
 from scene_pipelines.core.config import deployment_row_from_settings
-from scene_pipelines.core.db import atomic, lookup_key, new_id
+from scene_pipelines.core.db import atomic
 from scene_pipelines.core.types import DjKey, DjRow
 from scene_pipelines.ingestion.dlc._transient.poses import (
     PoseRecord,
@@ -26,8 +27,12 @@ from scene_pipelines.schemas.dlc.row_meta import (
     PoseRowMeta,
     PoseVideoRowMeta,
 )
+from scene_pipelines.schemas.files.files import File
 from scene_pipelines.schemas.provenance.deployment import Deployment
 from scene_pipelines.schemas.video.video import VideoFile
+
+_POSE_NAMESPACE = uuid.uuid5(uuid.NAMESPACE_URL, "scene-pipelines/dlc/Pose")
+"""Namespace of ``pose_id`` derived from a file; never change it."""
 
 
 def register_pose(
@@ -42,8 +47,8 @@ def register_pose(
 ) -> DjKey[Pose]:
     """Register a DeepLabCut output .h5: its ``File``, keypoints and optional links.
 
-    A file registered before keeps its ``pose_id``. The pose, its keypoints and its links are
-    written in one transaction.
+    ``pose_id`` follows from the file's SHA-256, so the same file gets the same id on every
+    site. The pose, its keypoints and its links are written in one transaction.
 
     Args:
         path: A local DeepLabCut output .h5 (offline analysis or DLC-live).
@@ -84,8 +89,7 @@ def register_pose(
     }
 
     with atomic(Pose.connection):
-        existing = lookup_key(Pose, file)
-        row = {"pose_id": existing["pose_id"] if existing else new_id(), **fields}
+        row = {"pose_id": pose_id_of_file(file), **fields}
         payload = {**file, **_payload(record, times)}
         parts = _keypoint_parts(record)
         pose = insert_tracked_row(PoseRowMeta, row, payload=payload, parts=parts, **stamp)
@@ -96,6 +100,11 @@ def register_pose(
             link = {"video_sha256": video["file_sha256"]}
             insert_tracked_row(PoseVideoRowMeta, {**pose, **link}, payload=link, **stamp)
     return pose
+
+
+def pose_id_of_file(file: DjKey[File]) -> uuid.UUID:
+    """``pose_id`` of the pose read from ``file``: a UUID5 of its SHA-256."""
+    return uuid.uuid5(_POSE_NAMESPACE, file["file_sha256"])
 
 
 def _keypoint_parts(record: PoseRecord) -> dict:
