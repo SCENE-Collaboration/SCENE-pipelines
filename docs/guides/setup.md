@@ -8,7 +8,7 @@ To install the latest version directly from GitHub, run:
 pip install "scene-pipelines[dev] @ git+https://github.com/SCENE-Collaboration/SCENE-pipelines.git"
 ```
 
-To pin a release, add its tag, e.g. `...SCENE-pipelines.git@v0.0.1`
+To pin a release, add its tag, e.g. `...SCENE-pipelines.git@v0.0.2`
 (see [tags](https://github.com/SCENE-Collaboration/SCENE-pipelines/tags)).
 
 Or clone the repository, and install an editable version
