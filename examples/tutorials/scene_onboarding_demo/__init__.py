@@ -1,4 +1,4 @@
-"""The Demo lab's pipeline on SCENE, used by ``03_scene_onboarding_demo.ipynb``.
+"""The Demo lab's pipeline on SCENE, used by ``02_scene_onboarding_demo.ipynb``.
 
 - ``admin``: the lab's codes, set once
 - ``manifest``: the lab's files on disk, read into checked objects

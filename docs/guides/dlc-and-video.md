@@ -6,7 +6,7 @@ Two optional shared schemas hold what every lab that films its animals, or track
 - `dlc`: DeepLabCut projects, the versions of their `config.yaml`, and the poses a model produced.
 
 Both are **preliminary**: their tables may still change before a stable release.
-The [onboarding tutorial](../tutorials/03_scene_onboarding_demo.ipynb) uses them end to end on real data.
+The [onboarding tutorial](../tutorials/02_scene_onboarding_demo.ipynb) uses them end to end on real data.
 
 ## Installing
 
