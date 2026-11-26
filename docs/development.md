@@ -18,7 +18,8 @@ make docs-build    # build into site/
 ```
 
 The site is built with MkDocs and Material from `docs/` and `mkdocs.yml`. The API reference is generated from the
-docstrings (Google style), one page per module. Notebooks in `examples/tutorials/` are copied into the site by
+docstrings (Google style), one page per module, with the source of each function and class. A table class also
+shows its `definition`, added by `docs/griffe_definitions.py`. Notebooks in `examples/tutorials/` are copied into the site by
 `docs/gen_examples.py` and shown with their saved outputs, not
 executed: run them and save before committing.
 

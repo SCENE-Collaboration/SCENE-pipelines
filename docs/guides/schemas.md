@@ -59,3 +59,12 @@ A lab with an existing pipeline can link its rows to the shared ones, or migrate
 [MLAI tutorial](../tutorials/02_mlai_mouse_ar.ipynb) shows how the Mathis lab does it.
 
 The [Getting started](../tutorials/01_getting_started.ipynb) tutorial walks through this on a local database.
+
+## Naming: *project*
+
+A bare *project* (`Project`, `project_name`, `project=`) always means the SCENE
+[`Project`][scene_pipelines.schemas.scene.project.Project]. A tool with projects of its own qualifies them: DeepLabCut's
+are `DlcProject`, `dlc_project_code`, `dlc_project=` and `PoseDlcProject`. Where both meet, the SCENE one is called
+`scene_project=`, as in
+[`register_dlc_project`][scene_pipelines.ingestion.dlc.project.register_dlc_project]. Name a lab's own tables the same
+way.
