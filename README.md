@@ -35,7 +35,9 @@ Good places to start:
   helper, from the docstrings.
 
 [An existing lab: MLAI and MouseAR](https://scene-collaboration.github.io/SCENE-pipelines/tutorials/02_mlai_mouse_ar/)
-shows a real lab pipeline (Mathis lab, Mouse AR) on the shared tables.
+shows a real lab pipeline (Mathis lab, Mouse AR) on the shared tables, and
+[Onboarding a lab with DeepLabCut](https://scene-collaboration.github.io/SCENE-pipelines/tutorials/03_scene_onboarding_demo/)
+puts a lab's DeepLabCut data on the shared `video` and `dlc` tables, end to end.
 
 ## Quickstart
 

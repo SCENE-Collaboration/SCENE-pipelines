@@ -119,6 +119,8 @@ Some functionalities are intended for developers and databases maintainers, but 
 - [Getting started](tutorials/01_getting_started.ipynb): the same ideas, in code, on a local database.
 - [MLAI example](tutorials/02_mlai_mouse_ar.ipynb): a real lab on
   the shared layer.
+- [Onboarding a lab with DeepLabCut](tutorials/03_scene_onboarding_demo.ipynb): a lab's pipeline end to end, on the
+  shared video and DeepLabCut tables.
 - [Writing data](guides/writing-data.md) and [Schemas and the registry](guides/schemas.md): the helpers and the
   registry in detail.
 - API reference: every table and helper, from the docstrings.

@@ -6,6 +6,7 @@ The tutorial notebooks run against a local database. Each writes only to databas
 |---|---|
 | [Getting started](01_getting_started.ipynb) | Anyone new: register a lab's mice, sessions and files on the shared tables, add the lab's own tables, query across them. |
 | [An existing lab: MLAI and MouseAR](02_mlai_mouse_ar.ipynb) | Labs with an existing pipeline: the Mathis lab's real code for its lab layer, automatic ingestion and legacy tables. |
+| [Onboarding a lab with DeepLabCut](03_scene_onboarding_demo.ipynb) | Labs that track behaviour: real DeepLabCut data on the shared `video` and `dlc` tables, the lab's own tables on top, and analyses that compute themselves. Needs the extras `[dlc,video]` and downloads about 54 MB of data. |
 
 ## New to DataJoint?
 

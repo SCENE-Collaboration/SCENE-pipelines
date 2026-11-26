@@ -6,6 +6,7 @@ Two optional shared schemas hold what every lab that films its animals, or track
 - `dlc`: DeepLabCut projects, the versions of their `config.yaml`, and the poses a model produced.
 
 Both are **preliminary**: their tables may still change before a stable release.
+The [onboarding tutorial](../tutorials/03_scene_onboarding_demo.ipynb) uses them end to end on real data.
 
 ## Installing
 
@@ -94,7 +95,7 @@ pose = register_pose(
 Like the other helpers, each can run again: what is stored is recognised and its key returned.
 `register_pose` writes the pose, its keypoints and its links in one transaction.
 
-The lab's own tables then refer to these rows: a lab's recording table can reference a `VideoRecording`,
+The lab's own tables then refer to these rows: the onboarding tutorial's `Recording` references a `VideoRecording`,
 the `Pose` the lab analyses, and the `ProjectConfig` whose `pcutoff` it uses.
 
 ## Reading

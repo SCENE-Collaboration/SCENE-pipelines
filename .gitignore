@@ -13,3 +13,6 @@ site/
 .dbdata/
 datajoint.json
 .cache
+# The onboarding tutorial's data: downloaded by the notebook
+examples/tutorials/scene_onboarding_data/
+examples/tutorials/scene-onboarding-demo-data-v*.zip
