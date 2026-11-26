@@ -34,7 +34,7 @@ make init        # once: creates .env
 make db_up       # starts MySQL
 ```
 
-The notebooks are in [`examples/tutorials/`](https://github.com/SCENE-Collaboration/SCENE-pipelines/tree/dev/examples/tutorials).
+The notebooks are in [`examples/tutorials/`](https://github.com/SCENE-Collaboration/SCENE-pipelines/tree/v0.0.2/examples/tutorials).
 Open them from that folder, so that `tutorial_utils` can be imported.
 `tutorial_utils.drop_tutorial_schemas()` removes the tutorial databases to start over.
 
