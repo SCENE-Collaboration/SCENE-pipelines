@@ -45,17 +45,11 @@ log = logging.getLogger(__name__)
 
 def ingest(folder: Path) -> dict:
     """Read and validate a session folder, register it, compute what is missing. Safe to rerun."""
-    # 1. Read your data in Python
+    # 1. Read and check the lab's files
     manifest = read_session_folder(folder)
     mouse, details, rec = manifest.mouse, manifest.session, manifest.recording
 
-    # 2a. The shared layer: the DeepLabCut project, the mouse and the session
-    project = register_dlc_project(
-        DLC_PROJECT_CODES[rec.dlc_project.name], lab=LAB_KEY, scene_project=PROJECT_KEY
-    )
-    config = register_project_config(
-        rec.data / rec.dlc_project / "config.yaml", dlc_project=project
-    )
+    # 2a. Shared, once per mouse and DeepLabCut project: recognised when they are in already
     subject = register_mouse(
         mouse.mouse_name,
         mouse.sex,
@@ -64,7 +58,19 @@ def ingest(folder: Path) -> dict:
         strain=ensure_strain({"strain_name": mouse.strain}),
         genotype=mouse.genotype or None,
     )
-    with atomic(Session.connection):  # the session and its details: both, or neither
+    project = register_dlc_project(
+        DLC_PROJECT_CODES[rec.dlc_project.name], lab=LAB_KEY, scene_project=PROJECT_KEY
+    )
+    config = register_project_config(
+        rec.data / rec.dlc_project / "config.yaml", dlc_project=project
+    )
+
+    start_time, timestamps = None, None
+    if rec.video_timestamps is not None:
+        start_time, timestamps = read_video_timestamps(rec.data / rec.video_timestamps)
+
+    with atomic(Session.connection):  # the session's rows (2b and 2c): all, or none
+        # 2b. Shared, per session: the session, its video and the video's poses
         session = register_session(
             details.session_code,
             details.session_date,
@@ -76,14 +82,6 @@ def ingest(folder: Path) -> dict:
                 "experimenter_code": EXPERIMENTER_CODES[details.experimenter_name],
             },
         )
-        # 2b. The lab layer on top
-        register_session_details(details, session=session)
-
-    # 2c. The recording: shared video and poses, then the lab's Recording
-    start_time, timestamps = None, None
-    if rec.video_timestamps is not None:
-        start_time, timestamps = read_video_timestamps(rec.data / rec.video_timestamps)
-    with atomic(Recording.connection):  # the video, its poses and the recording: all or none
         video = register_video_recording(
             rec.data / rec.video,
             session=session,
@@ -97,6 +95,9 @@ def ingest(folder: Path) -> dict:
             video={"file_sha256": (VideoRecording & video).fetch1("file_sha256")},
             frame_times=rec.data / rec.frame_times if rec.frame_times else None,
         )
+
+        # 2c. The lab's own tables, on top of the shared rows
+        register_session_details(details, session=session)
         register_recording(rec, video=video, pose=pose, config=config)
 
     # 3. Compute downstream analyses automatically
