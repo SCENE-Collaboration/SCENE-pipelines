@@ -9,16 +9,29 @@ description = "SCENE shared DataJoint schemas and ingestion helpers"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "datajoint>=2.2",
+    "datajoint>=2.3.6",  # Windows-safe file stores (2.3.3), store path checks (2.3.6)
     "packaging", # required by datajoint > 1
     "typing_extensions>=4.6",
 ]
 
 [project.optional-dependencies]
+s3 = [
+    "s3fs>=2023.1.0",  # for a scene-files store on S3
+]
+video = [
+    "opencv-python-headless>=4.5",  # register_video reads fps, size and frame count
+]
+dlc = [
+    "pandas[hdf5]>=2.0",  # register_pose reads DeepLabCut .h5 and frame times
+    "ruamel.yaml>=0.17",  # register_project_config reads config.yaml
+]
 dev = [
+    "opencv-python-headless>=4.5",  # the video tests
+    "pandas[hdf5]>=2.0",  # the dlc tests
     "pre-commit>=3.5",
     "pytest>=7",
-    "ruff>=0.15",
+    "ruamel.yaml>=0.17",  # the dlc tests
+    "ruff==0.17.6",  # same as .pre-commit-config.yaml
 ]
 docs = [
     "mkdocs>=1.6,<2",  # 2.0 drops the plugin system mkdocstrings relies on

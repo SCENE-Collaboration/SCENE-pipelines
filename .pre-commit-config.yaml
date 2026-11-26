@@ -18,8 +18,9 @@ repos:
       - id: validate-pyproject
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.6
+    rev: v0.17.6  # same as the ruff pin in pyproject.toml
     hooks:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
+        types_or: [python, pyi, jupyter, markdown]

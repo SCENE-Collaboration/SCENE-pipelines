@@ -54,9 +54,12 @@ plugins:
         python:
           paths: [.]
           options:
+            # Tables: their definition under the class docstring (docs/griffe_definitions.py).
+            extensions:
+              - docs/griffe_definitions.py:TableDefinitions
             show_root_heading: true
             show_symbol_type_heading: true
-            show_source: false
+            show_source: true
             separate_signature: true
             show_signature_annotations: true
             signature_crossrefs: true
@@ -104,12 +107,17 @@ nav:
   - Guides:
       - Setup and configuration: guides/setup.md
       - Writing data: guides/writing-data.md
+      - Videos and DeepLabCut poses: guides/dlc-and-video.md
       - Schemas and the registry: guides/schemas.md
       - Provenance and sync: guides/provenance.md
+  - Administration:
+      - admin/index.md
+      - File store: admin/file-store.md
   - API reference
   - Development: development.md
 
-# Build script, not a page.
+# Build scripts, not pages.
 exclude_docs: |
   gen_examples.py
+  griffe_definitions.py
   __pycache__/

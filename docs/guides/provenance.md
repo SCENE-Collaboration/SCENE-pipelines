@@ -50,7 +50,8 @@ Two optional markers declare intent for whoever administers a database. Read the
 
 [`SyncAuthority`][scene_pipelines.core.access_markers.SyncAuthority] names which database holds the truth: `CENTRAL`
 (consortium catalogs; the central database has authority), `ORIGIN` (the site that acquired the data has authority),
-`SHARED` (append-only; either direction inserts and never overwrites).
+`SHARED` (append-only; either direction inserts and never overwrites), `NOSYNC` (about this database's own deployment;
+never synced).
 
 [`WriteRole`][scene_pipelines.core.access_markers.WriteRole] restricts INSERT: `ADMIN` or `ACQUISITION`, and a marker
 admits only that role. No marker means unrestricted. `Lab` and `Project` are `ADMIN`; `Subject` and `Session` are

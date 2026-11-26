@@ -21,5 +21,5 @@ class Deployment(dj.Manual):
     definition = """
     deployment_id: varchar(64)  # opaque stable token — never renamed
     ---
-    label='': varchar(128)  # human label, e.g. kccl-prod
+    label='': varchar(128)  # human label, e.g. mlai-prod
     """
