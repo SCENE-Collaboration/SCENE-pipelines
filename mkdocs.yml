@@ -103,7 +103,7 @@ nav:
       - Instructions: tutorials/setup.md
       - Notebooks:
           - Getting started: tutorials/01_getting_started.ipynb
-          - Onboarding a lab with DeepLabCut: tutorials/02_scene_onboarding_demo.ipynb
+          - Onboarding demo: tutorials/02_scene_onboarding_demo.ipynb
           - Migrate existing pipeline: tutorials/03_mlai_mouse_ar.ipynb
   - Guides:
       - Setup and configuration: guides/setup.md
