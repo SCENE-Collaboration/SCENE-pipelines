@@ -2,8 +2,8 @@
 
 - ``admin``: the lab's codes, set once
 - ``manifest``: the lab's files on disk, read into checked objects
-- ``register``: writing a session to the shared tables and the lab's own
-  (``ingest`` does it all for one session folder)
+- ``register``: the lab's own tables of a session, and ``ingest``: one session folder, with the
+  shared helpers of ``scene_pipelines.ingestion``
 - ``schemas``: the lab's own tables, on top of the shared ones
 - ``plots``: figures of a recording
 """
