@@ -16,6 +16,7 @@ from scene_pipelines.ingestion.video._version import VIDEO_WRITER_VERSION
 from scene_pipelines.ingestion.video.video import insert_video_file
 from scene_pipelines.schemas.provenance.deployment import Deployment
 from scene_pipelines.schemas.scene.lab import Lab
+from scene_pipelines.schemas.scene.session import Session
 from scene_pipelines.schemas.video.processing import ProcessedVideo, VideoTransform
 from scene_pipelines.schemas.video.recording import VideoRecording
 from scene_pipelines.schemas.video.row_meta import ProcessedVideoRowMeta, VideoTransformRowMeta
@@ -94,15 +95,21 @@ def register_processed_video(
         ValueError: If the transform belongs to another lab than the recording, the video is
             unreadable, or ``if_exists`` rejects the existing row.
     """
-    if transform["lab_id"] != recording["lab_id"]:
+    session_lab = (Session & {"session_id": recording["session_id"]}).fetch1("lab_id")
+    if transform["lab_id"] != session_lab:
         raise ValueError(
             f"transform {transform['transform_code']!r} is of lab {transform['lab_id']!r}, "
-            f"the recording of lab {recording['lab_id']!r}"
+            f"the recording of lab {session_lab!r}"
         )
     metadata = read_video_metadata(path)
     deployment_row = deployment if deployment is not None else deployment_row_from_settings()
     file = register_file(path, store=store)
-    key = {**recording, "transform_code": transform["transform_code"]}
+    key = {
+        "session_id": recording["session_id"],
+        "take": recording["take"],
+        "lab_id": transform["lab_id"],
+        "transform_code": transform["transform_code"],
+    }
     with atomic(ProcessedVideo.connection):
         insert_video_file(file, metadata, deployment=deployment_row)
         return insert_tracked_row(

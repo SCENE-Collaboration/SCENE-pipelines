@@ -8,15 +8,9 @@ from scene_pipelines.core.access_markers import (
     write_role_of,
 )
 from scene_pipelines.ingestion.video import recording as recording_module
-from scene_pipelines.schemas.video.recording import Camera, VideoRecording
+from scene_pipelines.schemas.video.recording import VideoRecording
 
 SESSION = {"session_id": "00000000-0000-0000-0000-000000000001"}
-CAMERA = {"lab_id": "lab", "camera_code": "top"}
-
-
-def test_ensure_camera_refuses_an_invalid_code():
-    with pytest.raises(ValueError, match="camera_code"):
-        recording_module.ensure_camera("top view", lab={"lab_id": "lab"})
 
 
 @pytest.mark.parametrize(
@@ -29,12 +23,10 @@ def test_ensure_camera_refuses_an_invalid_code():
 )
 def test_register_video_recording_refuses_bad_arguments(tmp_path, kwargs, message):
     with pytest.raises(ValueError, match=message):
-        recording_module.register_video_recording(
-            tmp_path / "v.avi", session=SESSION, camera=CAMERA, **kwargs
-        )
+        recording_module.register_video_recording(tmp_path / "v.avi", session=SESSION, **kwargs)
 
 
-@pytest.mark.parametrize("table", [Camera, VideoRecording, VideoRecording.FrameTimestamps])
+@pytest.mark.parametrize("table", [VideoRecording, VideoRecording.FrameTimestamps])
 def test_recording_tables_are_acquired_origin_data(table):
     assert sync_authority_of(table) is SyncAuthority.ORIGIN
     assert write_role_of(table) is WriteRole.ACQUISITION

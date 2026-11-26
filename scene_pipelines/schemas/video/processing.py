@@ -26,7 +26,10 @@ class VideoTransform(dj.Manual):
 @mark_write_role(WriteRole.ACQUISITION)
 @schema
 class ProcessedVideo(dj.Manual):
-    """A video made from a recording by a transform; write with ``register_processed_video``."""
+    """A video made from a recording by a transform of the session's lab.
+
+    Write with ``register_processed_video``, which checks the lab.
+    """
 
     definition = """
     -> VideoRecording

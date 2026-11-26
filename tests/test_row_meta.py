@@ -12,7 +12,6 @@ from scene_pipelines.schemas.provenance.row_meta import (
     SubjectRowMeta,
 )
 from scene_pipelines.schemas.video.row_meta import (
-    CameraRowMeta,
     ProcessedVideoRowMeta,
     VideoFileRowMeta,
     VideoRecordingRowMeta,
@@ -52,7 +51,6 @@ def test_row_meta_subclasses_match_tracked_masters() -> None:
         MouseRowMeta,
         StrainRowMeta,
         VideoFileRowMeta,
-        CameraRowMeta,
         VideoRecordingRowMeta,
         VideoTransformRowMeta,
         ProcessedVideoRowMeta,
@@ -64,7 +62,6 @@ def test_row_meta_subclasses_match_tracked_masters() -> None:
     assert MouseRowMeta.tracked_table.__name__ == "Mouse"
     assert StrainRowMeta.tracked_table.__name__ == "Strain"
     assert VideoFileRowMeta.tracked_table.__name__ == "VideoFile"
-    assert CameraRowMeta.tracked_table.__name__ == "Camera"
     assert VideoRecordingRowMeta.tracked_table.__name__ == "VideoRecording"
     assert VideoTransformRowMeta.tracked_table.__name__ == "VideoTransform"
     assert ProcessedVideoRowMeta.tracked_table.__name__ == "ProcessedVideo"

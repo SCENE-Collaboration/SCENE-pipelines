@@ -40,14 +40,13 @@ def lab(dj_connection, monkeypatch):
 
 @pytest.fixture
 def recording(lab, tmp_path):
-    """A new recording of the lab's ``top`` camera."""
+    """A new recording in a session of the lab."""
     from scene_pipelines.ingestion import register_session
-    from scene_pipelines.ingestion.video import ensure_camera, register_video_recording
+    from scene_pipelines.ingestion.video import register_video_recording
 
-    camera = ensure_camera("top", lab=lab, camera_details="top view")
     session = register_session(f"video-{uuid.uuid4().hex[:12]}", date(2026, 11, 24), lab=lab)
     path = write_video(tmp_path / f"{uuid.uuid4().hex}.avi", n_frames=6)
-    return register_video_recording(path, session=session, camera=camera)
+    return register_video_recording(path, session=session)
 
 
 def test_ensure_video_transform_refuses_other_steps_under_the_same_code(lab):
@@ -74,6 +73,24 @@ def test_register_processed_video_links_output_to_recording(lab, recording, tmp_
     path = write_video(tmp_path / f"{uuid.uuid4().hex}.avi", n_frames=6, size=(16, 12))
     processed = register_processed_video(path, recording=recording, transform=transform)
 
-    assert processed == {**recording, "transform_code": transform["transform_code"]}
+    assert processed == {**recording, **transform}
     assert register_processed_video(path, recording=recording, transform=transform) == processed
     assert (ProcessedVideo & processed).fetch1("file_sha256") == hash_file(path).sha256
+
+
+def test_register_processed_video_refuses_a_transform_of_another_lab(recording, tmp_path):
+    from scene_pipelines.ingestion.files import hash_file
+    from scene_pipelines.ingestion.provenance import DuplicatePolicy
+    from scene_pipelines.ingestion.scene.admin import ensure_lab
+    from scene_pipelines.ingestion.video import ensure_video_transform, register_processed_video
+    from scene_pipelines.schemas.files.files import File
+
+    other = ensure_lab(
+        {"lab_id": "video_lab_other", "lab_name": "Other Video Lab"},
+        if_exists=DuplicatePolicy.SKIP,
+    )
+    transform = ensure_video_transform("crop", lab=other)
+    path = write_video(tmp_path / f"{uuid.uuid4().hex}.avi", n_frames=6, size=(16, 12))
+    with pytest.raises(ValueError, match="of lab 'video_lab_other'"):
+        register_processed_video(path, recording=recording, transform=transform)
+    assert not (File & {"file_sha256": hash_file(path).sha256})  # refused before the upload
