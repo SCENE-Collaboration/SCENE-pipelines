@@ -4,7 +4,7 @@ Shared [DataJoint](https://datajoint.com/) tables for the labs of SCENE, and the
 Every lab registers its labs, subjects, sessions and files in the same tables, keeps its own tables next to them, and
 links the two by key.
 
-Migrated with full history from [Base-schemas](https://github.com/SCENE-Collaboration/Base-schemas),
+Migrated with full history from [Base-schemas](https://github.com/SCENE-Collaboration/MLAI-Base-schemas),
 where the earlier review discussions live.
 
 > [!NOTE]
