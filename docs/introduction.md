@@ -29,7 +29,9 @@ flowchart BT
     end
     subgraph shared["<b>SCENE-Pipelines optional</b>"]
       mouse["<b>mouse</b><br/>Strain, Mouse"]
-      deeplabcut["<b>dlc-scene</b><br/> DlcProject, DlcFile, DlcFileRevision"]
+      files["<b>files</b><br/>File, FileContent"]
+      video["<b>video</b><br/>VideoFile, VideoRecording, …"]
+      deeplabcut["<b>dlc</b><br/>DlcProject, ProjectConfig, Pose"]
     end
     shared --> core
     lab -.-> shared
@@ -42,7 +44,7 @@ flowchart BT
 | Layer | Defined by | Holds |
 |---|---|---|
 | SCENE shared: `scene` | SCENE pipelines | what every lab and project has: lab, project, subject, session, experimenter |
-| SCENE optional: `mouse`, `dlc-scene`, … | SCENE pipelines | what labs of one kind or with one tool share: a mouse's sex and strain, DeepLabCut projects and results |
+| SCENE optional: `mouse`, `files`, `video`, `dlc`, … | SCENE pipelines | what labs of one kind or with one tool share: a mouse's sex and strain, files, videos, DeepLabCut projects and poses ([guide](guides/dlc-and-video.md)) |
 | lab schema (optional) | the lab | what the lab records across its projects: cages, rigs, score sheets, notes |
 | project schema | the project | the project's own experimental concepts and analyses, e.g. MouseAR's datasets and trials |
 

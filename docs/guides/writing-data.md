@@ -65,6 +65,8 @@ register_session(
 )
 ```
 
+Videos and DeepLabCut poses have helpers of their own: see [Videos and DeepLabCut poses](dlc-and-video.md).
+
 ## Several writes at once
 
 Each helper is atomic and joins a transaction that is already open. To make several registrations all-or-nothing,

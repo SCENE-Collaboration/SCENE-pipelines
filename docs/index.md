@@ -23,7 +23,7 @@ links the two by key.
 
 | Package | Contents |
 |---|---|
-| [`scene_pipelines.schemas`][scene_pipelines.schemas] | table definitions: `scene` (lab, project, subject, session), `mouse`, `provenance` |
+| [`scene_pipelines.schemas`][scene_pipelines.schemas] | table definitions: `scene` (lab, project, subject, session), `mouse`, `files`, `video`, `dlc`, `provenance` |
 | [`scene_pipelines.ingestion`][scene_pipelines.ingestion] | the helpers that write to the shared tables (`register_session`, …), in packages that mirror the schemas |
 | [`scene_pipelines.core`][scene_pipelines.core] | the schema registry, settings, transactions, versioning and table markers |
 

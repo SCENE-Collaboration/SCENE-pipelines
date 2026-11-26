@@ -1,4 +1,6 @@
+import importlib
 import os
+import pkgutil
 import time
 import traceback
 
@@ -45,15 +47,21 @@ def wait_for_database(max_attempts=30, delay_seconds=2):
 
 
 def generate_erd(output_path="scene_pipelines_erd.png"):
-    from scene_pipelines.schemas.provenance import deployment, row_meta
-    from scene_pipelines.schemas.scene import lab, session
+    """Save one diagram of every shared schema (each table module under scene_pipelines.schemas)."""
+    import scene_pipelines.schemas
+    from scene_pipelines.core import SCENE_REGISTRY
 
-    (
-        dj.Diagram(lab.schema)
-        + dj.Diagram(session.schema)
-        + dj.Diagram(deployment.schema)
-        + dj.Diagram(row_meta.schema)
-    ).save(output_path)
+    for module in pkgutil.walk_packages(
+        scene_pipelines.schemas.__path__, prefix="scene_pipelines.schemas."
+    ):
+        importlib.import_module(module.name)
+    SCENE_REGISTRY.activate_all()
+
+    diagram = None
+    for name, schema in sorted(SCENE_REGISTRY.schemas.items()):
+        diagram = dj.Diagram(schema) if diagram is None else diagram + dj.Diagram(schema)
+        print(f"schema {name}")
+    diagram.save(output_path)
     print(f"Saved {output_path}")
 
 
