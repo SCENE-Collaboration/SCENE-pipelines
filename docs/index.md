@@ -28,4 +28,4 @@ links the two by key.
 | [`scene_pipelines.core`][scene_pipelines.core] | the schema registry, settings, transactions, versioning and table markers |
 
 SCENE pipelines was migrated with full history from
-[Base-schemas](https://github.com/SCENE-Collaboration/Base-schemas), where the earlier review discussions live.
+[Base-schemas](https://github.com/SCENE-Collaboration/MLAI-Base-schemas), where the earlier review discussions live.
