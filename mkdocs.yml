@@ -106,6 +106,9 @@ nav:
       - Writing data: guides/writing-data.md
       - Schemas and the registry: guides/schemas.md
       - Provenance and sync: guides/provenance.md
+  - Administration:
+      - admin/index.md
+      - File store: admin/file-store.md
   - API reference
   - Development: development.md
 

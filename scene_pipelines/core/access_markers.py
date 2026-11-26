@@ -16,6 +16,8 @@ Read them with ``sync_authority_of`` / ``write_role_of``.
   owner.
 - ``SHARED``: no owner; append-only identities (``Deployment``). Either
   direction inserts missing rows and never overwrites.
+- ``NOSYNC``: rows describe this database's own deployment (``FileContent``:
+  its store copy holds the bytes). Never synced.
 
 An unmarked table is ``ORIGIN``. A ``dj.Part`` follows its master, and a
 row-meta table follows its ``tracked_table``.
@@ -41,6 +43,7 @@ class SyncAuthority(str, Enum):
     CENTRAL = "central"
     ORIGIN = "origin"
     SHARED = "shared"
+    NOSYNC = "nosync"
 
 
 class WriteRole(str, Enum):
