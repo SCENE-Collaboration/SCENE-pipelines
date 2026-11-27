@@ -1,5 +1,6 @@
-"""Connection helpers for the SCENE pipelines tutorials."""
+"""Helpers for the SCENE pipelines tutorials: connect, drop, show code."""
 
+import inspect
 import os
 from pathlib import Path
 
@@ -62,3 +63,10 @@ def drop_tutorial_schemas(prefix: str = "tutorial_") -> list[str]:
     finally:
         conn.query("SET FOREIGN_KEY_CHECKS=1")
     return names
+
+
+def display_code(func):
+    """The source of ``func``, shown in the notebook as a Python code block."""
+    from IPython.display import Markdown
+
+    return Markdown(f"```python\n{inspect.getsource(func)}\n```")

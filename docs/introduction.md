@@ -94,7 +94,7 @@ A lab registers its own schema on the same registry as the shared ones, for exam
 The shared row is the identity: there is no second session id to keep in sync.
 
 A lab that already has a pipeline can keep it, and link its existing rows to the shared ones,
-or migrate them. The [MLAI example](tutorials/02_mlai_mouse_ar.ipynb)
+or migrate them. The [MLAI example](tutorials/03_mlai_mouse_ar.ipynb)
 does both for a real pipeline.
 
 Details: [Schemas and the registry](guides/schemas.md).
@@ -117,7 +117,9 @@ Some functionalities are intended for developers and databases maintainers, but 
 ## Where next
 
 - [Getting started](tutorials/01_getting_started.ipynb): the same ideas, in code, on a local database.
-- [MLAI example](tutorials/02_mlai_mouse_ar.ipynb): a real lab on
+- [Onboarding a lab with DeepLabCut](tutorials/02_scene_onboarding_demo.ipynb): a lab's pipeline end to end, on the
+  shared video and DeepLabCut tables.
+- [MLAI example](tutorials/03_mlai_mouse_ar.ipynb): a real lab on
   the shared layer.
 - [Writing data](guides/writing-data.md) and [Schemas and the registry](guides/schemas.md): the helpers and the
   registry in detail.
