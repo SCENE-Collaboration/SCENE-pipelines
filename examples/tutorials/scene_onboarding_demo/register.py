@@ -31,6 +31,7 @@ def register_recording(entry: RecordingEntry, *, video: dict, pose: dict, config
         {
             **video,
             **pose,
+            "lab_id": config["lab_id"],
             "dlc_project_id": config["dlc_project_id"],
             "config_sha256": config["file_sha256"],
             "arena_name": entry.arena.arena_name,
