@@ -27,13 +27,13 @@ from scene_pipelines.schemas.scene.session import Session
 from scene_pipelines.schemas.video.recording import VideoRecording
 
 from scene_onboarding_demo.admin import (
-    DLC_PROJECT_CODES,
     EXPERIMENTER_CODES,
     LAB_KEY,
     PROJECT_KEY,
 )
 from scene_onboarding_demo.manifest import (
     discover_sessions,
+    dlc_project_code,
     read_session_folder,
     read_video_timestamps,
 )
@@ -59,7 +59,7 @@ def ingest(folder: Path) -> dict:
         genotype=mouse.genotype or None,
     )
     project = register_dlc_project(
-        DLC_PROJECT_CODES[rec.dlc_project.name], lab=LAB_KEY, scene_project=PROJECT_KEY
+        dlc_project_code(rec.data / rec.dlc_project), lab=LAB_KEY, scene_project=PROJECT_KEY
     )
     config = register_project_config(
         rec.data / rec.dlc_project / "config.yaml", dlc_project=project

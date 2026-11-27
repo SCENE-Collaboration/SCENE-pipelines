@@ -1,4 +1,4 @@
-"""The lab's codes: set once by an admin, used by every session."""
+"""The lab's codes: the lab and project, registered once by an admin, and experimenter codes."""
 
 LAB = {"lab_id": "demo", "lab_name": "DEMO lab", "institution": "SCENE workshop"}
 PROJECT = {
@@ -11,12 +11,6 @@ EXPERIMENTER_CODES = {
     "John Demo": "E01",
     "Jane Doe": "E02",
     "Jill Doe": "E03",
-}
-
-# DeepLabCut names a project folder after its task, labeller and date; the shared code must
-# not name a person.
-DLC_PROJECT_CODES = {
-    "active_sensing_ephys-celia-2026-06-26": "active-sensing-ephys",
 }
 
 LAB_KEY = {"lab_id": LAB["lab_id"]}

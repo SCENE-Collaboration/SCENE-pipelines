@@ -20,6 +20,7 @@ from typing import Literal
 import numpy as np
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from ruamel.yaml import YAML
 
 MICE_FILE = "mice.json"
 RECORDING_FILE = "recording.json"
@@ -150,6 +151,12 @@ def read_video_timestamps(path: Path) -> tuple[datetime, np.ndarray]:
     times = np.array([frame["software_timestamp"] for frame in record["frame_timestamps"]])
     start = datetime.fromtimestamp(record["start_time"], tz=timezone.utc).replace(tzinfo=None)
     return start, times
+
+
+def dlc_project_code(project: Path) -> str:
+    """A DeepLabCut project's code: task and date from ``config.yaml``, without the scorer."""
+    config = YAML(typ="safe").load(Path(project) / "config.yaml")
+    return f"{config['Task']}-{config['date']}"
 
 
 def read_session_folder(folder: Path) -> SessionManifest:
